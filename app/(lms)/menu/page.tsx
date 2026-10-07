@@ -10,11 +10,134 @@ export default async function PricingPage() {
   const read = createLearningReader(profile, sessionId);
   const items = await listMenus(client, read);
   const admin = profile.role === "ADMIN";
-  const currency = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
-  return <main className={styles.page}>
-    <header className={styles.heading}><div><p className={styles.eyebrow}>THÔNG TIN CHI PHÍ</p><h1>Bảng giá</h1><p>Tra cứu các hạng mục và mức giá được niêm yết.</p></div>{admin && <RecordControls context={{ entity: "menus" }} />}</header>
-    <section className={styles.panel} aria-labelledby="pricing-title"><header className={styles.panelHeader}><span className={styles.symbol}><Icon name="pricing" /></span><div><h2 id="pricing-title">Danh sách giá</h2><p>{items.length} hạng mục</p></div><span className={styles.currency}>Đơn vị: VNĐ</span></header>
-      {items.length ? <ul className={styles.list}>{items.map((item) => <li key={item.id}><div className={styles.itemName}><span className={styles.itemIcon}><Icon name="pricing" /></span><h3>{item.name}</h3></div><div className={styles.price}><strong>{currency.format(item.price)}</strong>{admin && <RecordControls iconOnly context={{entity:"menus",id:item.id}} values={{name:item.name,price:item.price}} />}</div></li>)}</ul> : <div className={styles.empty}><span className={styles.emptyIcon}><Icon name="pricing" /></span><h3>Bảng giá đang được cập nhật</h3><p>{admin ? "Thêm hạng mục và mức giá để hiển thị tại đây." : "Các hạng mục sẽ xuất hiện tại đây khi có thông tin mới."}</p></div>}
-    </section>
-  </main>;
+
+  const currency = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  });
+
+  // Tìm gói có giá cao nhất để gắn huy hiệu duy nhất
+  const maxPrice = items.length > 0 ? Math.max(...items.map((i) => i.price)) : 0;
+  const featuredItemId = items.find((i) => i.price === maxPrice && maxPrice > 0)?.id;
+
+  return (
+    <main className={styles.page}>
+      <div className={styles.bgGridPattern} />
+      <div className={styles.ambientGlow} />
+
+      <header className={styles.heading}>
+        <div>
+          <div className={styles.eyebrowContainer}>
+            <span className={styles.pulseDot} />
+            <span className={styles.eyebrow}>BẢNG GIÁ DỊCH VỤ & KHÓA HỌC</span>
+          </div>
+          <h1 className={styles.title}>Biểu phí niêm yết</h1>
+          <p className={styles.subtitle}>
+            Minh bạch chi phí cho từng chương trình học tập, tài liệu ôn luyện và các gói combo chuyên đề.
+          </p>
+        </div>
+        {admin && (
+          <div className={styles.adminAction}>
+            <RecordControls context={{ entity: "menus" }} />
+          </div>
+        )}
+      </header>
+
+      <section className={styles.panel} aria-labelledby="pricing-title">
+        <header className={styles.panelHeader}>
+          <div className={styles.headerLeft}>
+            <div className={styles.symbolRing}>
+              <Icon name="pricing" />
+            </div>
+            <div>
+              <h2 id="pricing-title">Danh sách hạng mục</h2>
+              <div className={styles.metaRow}>
+                <span className={styles.counterBadge}>{items.length} gói đang mở</span>
+                <span className={styles.dotSeparator}>•</span>
+                <span className={styles.subtext}>Cập nhật thời gian thực</span>
+              </div>
+            </div>
+          </div>
+          <div className={styles.currencyTag}>
+            <span className={styles.currLabel}>Đơn vị</span>
+            <span className={styles.currUnit}>VNĐ</span>
+          </div>
+        </header>
+
+        {items.length > 0 ? (
+          <div className={styles.listContainer}>
+            <ul className={styles.list}>
+              {items.map((item, index) => {
+                const isFeatured = item.id === featuredItemId && items.length > 1;
+
+                return (
+                  <li
+                    key={item.id}
+                    className={`${styles.listItem} ${isFeatured ? styles.featuredItem : ""}`}
+                    style={{ "--delay": `${index * 0.06}s` } as React.CSSProperties}
+                  >
+                    <div className={styles.leftAccentGlow} />
+
+                    <div className={styles.itemMain}>
+                      <div className={styles.itemIconBox}>
+                        <Icon name={isFeatured ? "graduation" : "book"} />
+                      </div>
+                      <div className={styles.itemDetails}>
+                        <div className={styles.titleWrapper}>
+                          <h3 className={styles.itemTitle}>{item.name}</h3>
+                          {isFeatured && (
+                            <span className={styles.popularBadge}>
+                              <Icon name="sparkles" />
+                              Ưu đãi nổi bật
+                            </span>
+                          )}
+                        </div>
+                        <span className={styles.itemSub}>
+                          Bao gồm hệ thống luyện đề, tài liệu PDF & video bài giảng
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.itemPricing}>
+                      <div className={styles.priceColumn}>
+                        <span className={styles.priceTerm}>Trọn gói</span>
+                        <span className={styles.priceAmount}>{currency.format(item.price)}</span>
+                      </div>
+
+                      <div className={styles.actions}>
+                        {admin && (
+                          <div className={styles.adminControls}>
+                            <RecordControls
+                              iconOnly
+                              context={{ entity: "menus", id: item.id }}
+                              values={{ name: item.name, price: item.price }}
+                            />
+                          </div>
+                        )}
+                        <span className={styles.chevronIcon}>
+                          <Icon name="chevron" />
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : (
+          <div className={styles.empty}>
+            <div className={styles.emptyIconContainer}>
+              <Icon name="pricing" />
+            </div>
+            <h3>Chưa có dữ liệu bảng giá</h3>
+            <p>
+              {admin
+                ? "Bấm nút thiết lập để thêm các hạng mục học phí mới vào hệ thống."
+                : "Hệ thống đang đồng bộ biểu phí. Vui lòng quay lại sau."}
+            </p>
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }
