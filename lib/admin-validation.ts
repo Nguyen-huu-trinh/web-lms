@@ -28,10 +28,13 @@ function order(form: FormData) {
   return Number(raw);
 }
 export function parseRecord(entity: Entity, form: FormData) {
+  // Omitted on existing edit forms: preserve the stored order. Inserts default to 0 in SQL.
+  const catalogOrder = ["subjects", "teachers", "courses", "menus"].includes(entity) && form.has("order_index")
+    ? { order_index: order(form) } : {};
   switch (entity) {
-    case "subjects": return { entity, values: { name: text(form,"name"), description: text(form,"description",false,5000) || null } };
-    case "teachers": return { entity, values: { name: text(form,"name"), bio: text(form,"bio",false,5000) || null } };
-    case "courses": return { entity, values: { title: text(form,"title"), description: text(form,"description",false,5000) || null } };
+    case "subjects": return { entity, values: { ...catalogOrder, name: text(form,"name"), description: text(form,"description",false,5000) || null } };
+    case "teachers": return { entity, values: { ...catalogOrder, name: text(form,"name"), bio: text(form,"bio",false,5000) || null } };
+    case "courses": return { entity, values: { ...catalogOrder, title: text(form,"title"), description: text(form,"description",false,5000) || null } };
     case "chapters": case "lessons": return { entity, values: { title: text(form,"title"), order_index: order(form) } };
     case "materials": {
       const type = text(form,"type"), provider = text(form,"provider"), url = text(form,"url",false,2048);
@@ -45,7 +48,7 @@ export function parseRecord(entity: Entity, form: FormData) {
     case "menus": {
       const raw = text(form,"price",false);
       if (!/^\d+(\.\d{1,2})?$/.test(raw) || !Number.isFinite(Number(raw)) || Number(raw) > 9999999999.99) throw new InputError("Giá phải là số không âm, tối đa 9999999999.99 và 2 chữ số thập phân.");
-      return { entity, values: { name: text(form,"name"), price: Number(raw) } };
+      return { entity, values: { ...catalogOrder, name: text(form,"name"), price: Number(raw) } };
     }
   }
 }

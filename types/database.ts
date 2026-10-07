@@ -1,9 +1,9 @@
 export type Role = "ADMIN" | "STUDENT";
 type Base = { id: string; created_at: string };
 export type Profile = Base & { email: string; username: string | null; role: Role; must_change_password: boolean; provisioned_by_admin: boolean };
-export type Subject = Base & { name: string; description: string | null };
-export type Teacher = Base & { subject_id: string; name: string; bio: string | null };
-export type Course = Base & { teacher_id: string; title: string; description: string | null };
+export type Subject = Base & { order_index: number; name: string; description: string | null };
+export type Teacher = Base & { order_index: number; subject_id: string; name: string; bio: string | null };
+export type Course = Base & { order_index: number; teacher_id: string; title: string; description: string | null };
 export type Chapter = Base & { course_id: string; title: string; order_index: number };
 export type Lesson = Base & { chapter_id: string; title: string; order_index: number };
 export type Material = Base & { lesson_id: string; title: string; order_index: number; url: string } &
@@ -13,7 +13,7 @@ type MaterialRow = Base & { lesson_id: string; title: string; order_index: numbe
 export type SubjectAccess = Base & { student_id: string; subject_id: string };
 export type TeacherAccess = Base & { student_id: string; teacher_id: string };
 export type Progress = { id: string; student_id: string; lesson_id: string; is_completed: boolean; updated_at: string };
-export type Menu = Base & { name: string; price: number };
+export type Menu = Base & { order_index: number; name: string; price: number };
 export type ActiveSession = { id: string; user_id: string; session_id: string; updated_at: string };
 type ProfileRelationship<Name extends string> = [{ foreignKeyName: Name; columns: ["student_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }];
 type Table<Row, Required extends keyof Row, Relationships = []> = {

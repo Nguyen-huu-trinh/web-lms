@@ -9,8 +9,8 @@ type Client = SupabaseClient<Database>;
 
 export async function catalog(client: Client, profile: Profile, read: DataReader = uncached) {
   const [subjects, teachers, subjectAccess, teacherAccess] = await Promise.all([
-    read("catalog:subjects", () => allRows((a,b) => client.from("subjects").select("*").order("name").order("id").range(a,b))),
-    read("catalog:teachers", () => allRows((a,b) => client.from("teachers").select("*").order("name").order("id").range(a,b))),
+    read("catalog:subjects", () => allRows((a,b) => client.from("subjects").select("*").order("order_index").order("name").order("id").range(a,b))),
+    read("catalog:teachers", () => allRows((a,b) => client.from("teachers").select("*").order("order_index").order("name").order("id").range(a,b))),
     profile.role === "ADMIN" ? Promise.resolve([]) : allRows((a,b) => client.from("student_subject_access").select("subject_id").eq("student_id", profile.id).order("id").range(a,b)),
     profile.role === "ADMIN" ? Promise.resolve([]) : allRows((a,b) => client.from("student_teacher_access").select("teacher_id").eq("student_id", profile.id).order("id").range(a,b)),
   ]);
@@ -45,7 +45,7 @@ export const teacherContext = cache(async (client: Client, teacherId: string, pr
 export async function teacherCourses(client: Client, teacherId: string, read: DataReader = uncached, profile?: Profile) {
   // Never let a cache hit bypass current membership checks.
   if (read !== uncached && (!profile || !await teacherContext(client, teacherId, profile))) return [];
-  return read("teacher:courses:" + teacherId, () => allRows((a,b) => client.from("courses").select("*").eq("teacher_id", teacherId).order("created_at").order("id").range(a,b)));
+  return read("teacher:courses:" + teacherId, () => allRows((a,b) => client.from("courses").select("*").eq("teacher_id", teacherId).order("order_index").order("created_at").order("id").range(a,b)));
 }
 
 // Batch IDs to avoid long request URLs, paginate each batch to avoid row caps.
@@ -112,6 +112,6 @@ export async function lessonContent(client: Client, lessonId: string, profile: P
   return { lesson, chapter, content, ...context, materials };
 }
 export async function listMenus(client: Client, read: DataReader = uncached) {
-  return read("pricing", () => allRows((a,b) => client.from("menus").select("*").order("name").order("id").range(a,b)));
+  return read("pricing", () => allRows((a,b) => client.from("menus").select("*").order("order_index").order("name").order("id").range(a,b)));
 }
 

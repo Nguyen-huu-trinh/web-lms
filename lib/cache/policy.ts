@@ -8,5 +8,5 @@ export const uncached: DataReader = (_key, load) => load();
 
 // Identity and session are part of the key, never bearer tokens or cookies.
 export function learningCacheKey(project: string, userId: string, sessionId: string, role: string, key: string) {
-  return ["lms-data-v1", project, userId, sessionId, role, key];
+  return ["lms-data-v2", project, userId, sessionId, role, key];
 }
