@@ -362,3 +362,12 @@
 @media (prefers-reduced-motion: reduce) {
   .courseSwitchContent[data-pending="true"] .courseSwitchSpinner { animation: none; opacity: 1; }
 }
+
+.subjectPanel { min-width: 0; }
+.subjectPanel[hidden] { display: none; }
+
+.subjectBrowser[hidden] { display: none; }
+
+.courseDetailRegion { position: relative; min-width: 0; }
+.courseLoadStatus { position: absolute; z-index: 2; right: 12px; top: 8px; max-width: calc(100% - 24px); margin: 0; padding: 5px 10px; border: 1px solid #bfdbfe; border-radius: 999px; background: #eff6ff; color: #1d4f96; font-size: 13px; box-shadow: 0 2px 8px #0f172a08; }
+.courseLoadError { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid #fecaca; border-radius: 12px; background: #fff7f7; color: #991b1b; }

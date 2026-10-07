@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavigationLink as Link } from "@/components/ui/navigation-link";
 import { Icon } from "@/components/ui/icon";
 import type { CourseContent } from "@/repositories/lms";
 import { RecordControls } from "./record-controls";

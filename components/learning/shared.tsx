@@ -1,5 +1,5 @@
 import { NextLessonButton } from "./next-lesson-button";
-import Link from "next/link";
+import { NavigationLink as Link } from "@/components/ui/navigation-link";
 import { Icon } from "@/components/ui/icon";
 export function EmptyState({ title, description }: { title: string; description?: string }) {
   return <div className="empty-state"><span className="empty-symbol"><Icon name="book" /></span><h2>{title}</h2>{description && <p>{description}</p>}</div>;

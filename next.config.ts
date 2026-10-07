@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Reuse page snapshots for five minutes. Completion/CRUD actions invalidate affected routes.
+  experimental: { staleTimes: { dynamic: 300, static: 300 } },
 };
 
 export default nextConfig;

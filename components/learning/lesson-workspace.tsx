@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { NavigationLink as Link } from "@/components/ui/navigation-link";
 import styles from "./lesson-workspace.module.css";
 import { useActionState, useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";

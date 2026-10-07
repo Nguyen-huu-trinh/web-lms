@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { NavigationLink as Link } from "@/components/ui/navigation-link";
 import { Icon } from "@/components/ui/icon";
 import type { Chapter, Lesson } from "@/types/database";
 import { EmptyState } from "./shared";

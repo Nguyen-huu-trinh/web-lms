@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { NavigationLink as Link } from "@/components/ui/navigation-link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { logout } from "@/app/login/actions";

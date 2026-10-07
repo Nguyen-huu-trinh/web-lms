@@ -196,3 +196,10 @@ progress::-moz-progress-bar { background: linear-gradient(90deg,#2563eb,#6366f1)
 @media (max-width: 430px) { .site-nav { gap: 10px; padding-inline: 12px; } .primary-nav { gap: 2px; } .primary-nav a { font-size: 13px; padding: 8px; } .brand { gap: 6px; font-size: 18px; } .brand-icon { width: 30px; height: 30px; } }
 
 @media (max-width: 767px) { .user-menu summary { min-height: 44px; padding: 4px; border-radius: 50%; } .user-menu .avatar { width: 34px; height: 34px; font-size: 15px; } }
+
+/* Navigation feedback stays inside the clicked link, without shifting its layout. */
+.navigation-link { position: relative; }
+.navigation-pending { position: absolute; left: 12%; right: 12%; bottom: 2px; height: 2px; border-radius: 999px; background: currentColor; opacity: 0; pointer-events: none; }
+.navigation-pending[data-pending="true"] { animation: navigation-pulse 1s ease-in-out 150ms infinite; }
+@keyframes navigation-pulse { 0%, 100% { opacity: .25; transform: scaleX(.45); } 50% { opacity: .8; transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .navigation-pending[data-pending="true"] { animation: none; opacity: .7; } }
