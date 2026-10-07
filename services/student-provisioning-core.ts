@@ -5,6 +5,7 @@ export type ExistingAccount = {
 export type ProvisioningPorts = {
   findAccount: (email: string) => Promise<ExistingAccount[]>;
   createAccount: (email: string, password: string) => Promise<string>;
+  confirmExisting?: (account: ExistingAccount) => Promise<void>;
   grantAccess: (id: string) => Promise<void>;
 };
 
@@ -29,6 +30,7 @@ export async function provisionStudent(email: string, ports: ProvisioningPorts) 
     const account = matches[0];
     if (account.role === "ADMIN") throw new Error("Email thuộc tài khoản Admin; không thể thêm làm học sinh.");
     if (!account.auth_exists || !account.has_password) throw new Error("Tài khoản cũ thiếu Auth user hoặc mật khẩu. Cần xử lý thủ công; hệ thống không tự thay đổi tài khoản này.");
+    await ports.confirmExisting?.(account);
     id = account.id;
   }
   if (!id) throw new Error("Không thể xác định tài khoản.");
