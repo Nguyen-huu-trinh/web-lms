@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { provisionStudent } from "../services/student-provisioning-core.ts";
-import { normalizeEmail, validatePasswordChange } from "../lib/auth-validation.ts";
+import { normalizeEmail, normalizeUsername, studentEmailFromUsername, validatePasswordChange } from "../lib/auth-validation.ts";
 
 function account(overrides = {}) {
   return { id: "student-id", profile_id: "student-id", role: "STUDENT", has_password: true, auth_exists: true, ...overrides };
@@ -61,4 +61,10 @@ test("email normalization and password validation reject malformed input", () =>
   for (const input of ["", null, "bad", "a b@c.com", "a@b@c.com"]) assert.throws(() => normalizeEmail(input));
   for (const args of [["", "Strong123!", "Strong123!"], ["123456", "short", "short"], ["123456", "New12345", "Different123"], ["Current123", "123456", "123456"], ["Current123", "Current123", "Current123"]]) assert.throws(() => validatePasswordChange(...args));
   assert.doesNotThrow(() => validatePasswordChange("123456", "NewStrong123!", "NewStrong123!"));
+});
+
+test("usernames normalize casing and internal emails are deterministic", () => {
+ assert.equal(normalizeUsername("  Nguyen_An  "), "nguyen_an");
+ assert.equal(studentEmailFromUsername("Nguyen_An"), "nguyen_an@students.lms.invalid");
+ for (const value of [null, "ab", "Nguyễn An", "a@b.com", "a b", "a".repeat(51)]) assert.throws(() => normalizeUsername(value));
 });

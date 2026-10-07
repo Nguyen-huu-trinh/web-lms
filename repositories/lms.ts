@@ -62,6 +62,21 @@ export async function courseContent(client: Client, courseId: string, studentId:
   const completed = progress.map((p) => p.lesson_id);
   return { course, chapters, lessons, completed, ...progressSummary(lessons.map((l) => l.id), completed) };
 }
+
+export async function courseProgressSummaries(client: Client, courseIds: string[], studentId: string) {
+  const chapters = await byIds(courseIds, (ids,a,b) => client.from("chapters").select("id,course_id").in("course_id", ids).order("id").range(a,b));
+  const lessons = await byIds(chapters.map((chapter) => chapter.id), (ids,a,b) => client.from("lessons").select("id,chapter_id").in("chapter_id", ids).order("id").range(a,b));
+  const progress = await byIds(lessons.map((lesson) => lesson.id), (ids,a,b) => client.from("user_progress").select("lesson_id").eq("student_id", studentId).eq("is_completed", true).in("lesson_id", ids).order("id").range(a,b));
+  const chapterCourses = new Map(chapters.map((chapter) => [chapter.id, chapter.course_id]));
+  const courseLessons = new Map(courseIds.map((id) => [id, [] as string[]]));
+  for (const lesson of lessons) {
+    const courseId = chapterCourses.get(lesson.chapter_id);
+    if (courseId) courseLessons.get(courseId)?.push(lesson.id);
+  }
+  const completed = progress.map((row) => row.lesson_id);
+  return Object.fromEntries(courseIds.map((id) => [id, progressSummary(courseLessons.get(id) ?? [], completed)]));
+}
+
 export type CourseContent = NonNullable<Awaited<ReturnType<typeof courseContent>>>;
 
 export async function lessonContent(client: Client, lessonId: string, profile: Profile) {

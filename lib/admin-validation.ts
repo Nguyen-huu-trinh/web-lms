@@ -1,6 +1,6 @@
 export const entityNames = {
   subjects: "môn học", teachers: "giáo viên", courses: "khóa học",
-  chapters: "chương", lessons: "bài học", materials: "tài liệu", menus: "món",
+  chapters: "chương", lessons: "bài học", materials: "tài liệu", menus: "mục giá",
 } as const;
 export type Entity = keyof typeof entityNames;
 export type MutationContext = { entity: Entity; id?: string; parentId?: string };

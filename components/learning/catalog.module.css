@@ -1,0 +1,352 @@
+.catalog {
+  --primary: #2563b8;
+  --primary-hover: #1d4f96;
+  --primary-light: #eff6ff;
+  --catalog-gradient: linear-gradient(120deg, #2869c5, #347bc9);
+}
+
+:global(.app-content):has(.catalog) {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.catalog :global(.page-heading) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.catalog :global(.heading-symbol) { display: none; }
+.catalog :global(.page-heading h1) { font-size: 28px; }
+
+.catalog :global(.filter-tabs) {
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  margin-bottom: 24px;
+}
+
+.catalog :global(.filter-tabs a) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 2px 3px #0f172a05;
+}
+
+.catalog :global(.filter-tabs a[aria-current]) {
+  color: #fff;
+  border-color: var(--primary);
+  background: var(--catalog-gradient);
+  box-shadow: 0 5px 12px #2563b820;
+}
+
+.catalog :global(.split-layout) {
+  grid-template-columns: minmax(260px, .9fr) minmax(0, 2fr);
+  align-items: start;
+  gap: 24px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.catalog :global(.list-sidebar),
+.catalog :global(.detail-panel) {
+  padding: 12px;
+  border: 1px solid #dfe5f0;
+  border-radius: 22px;
+  background: #ffffffed;
+  box-shadow: 0 4px 12px #0f172a02;
+}
+
+.catalog :global(.detail-panel) { padding: 12px; }
+
+.catalog :global(.sidebar-heading) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #f0f2f7;
+}
+
+.catalog :global(.section-label) {
+  margin: 0;
+  color: #263247;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .015em;
+}
+
+.catalog :global(.sidebar-heading > .icon) { color: var(--primary); }
+.catalog :global(.subtle-count) {
+  margin: 0 0 0 auto;
+  padding: 3px 12px;
+  border-radius: 99px;
+  color: var(--primary);
+  background: #e7f1fc;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.catalog :global(.list-sidebar nav) {
+  max-height: 440px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 2px 4px;
+}
+
+.catalog :global(.selection-item) {
+  gap: 12px;
+  min-height: 40px;
+  padding: 3px 8px;
+  margin: 0 0 6px;
+  border: 1px solid #e4e9f2;
+  border-radius: 16px;
+  color: #334155;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.catalog :global(.selection-copy) { flex: 1; }
+
+.catalog :global(.selection-icon) {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #eff6ff, #e8f2fc);
+  color: var(--primary);
+}
+
+.catalog :global(.selection-item.active) {
+  background: var(--catalog-gradient);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 5px 10px #2563b81c;
+}
+
+
+.catalog :global(.selection-item.active .selection-icon) { color: #fff; background: #ffffff30; }
+.catalog :global(.section-heading) { padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid #f0f2f7; }
+.catalog :global(.section-heading .eyebrow) { font-size: 14px; letter-spacing: .035em; }
+.catalog :global(.section-heading h2) { font-size: clamp(24px, 2vw, 28px); line-height: 1.25; font-weight: 800; margin: 4px 0; }
+.catalog :global(.teacher-list) { gap: 8px; }
+.catalog :global(.teacher-list > li) { border-color: #e0e6f0; box-shadow: 0 2px 3px #0f172a04; }
+.catalog :global(.teacher-row) { gap: 12px; min-height: 48px; padding: 4px 10px; }
+.catalog :global(.teacher-avatar) {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 15px;
+  color: #fff;
+  background: var(--catalog-gradient);
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: 0 7px 12px #0f172a15;
+}
+.catalog :global(.teacher-list > li:nth-child(even) .teacher-avatar) { background: linear-gradient(135deg, #2874b8, #3585bf); }
+.catalog :global(.teacher-row strong) { font-size: 17px; font-weight: 750; }
+.catalog :global(.teacher-action) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 10px;
+  min-height: 36px;
+  border: 1px solid #c5dcf3;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #f7fbff, #eef6fd);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.catalog :global(.badge) { color: var(--primary); background: #eaf3fc; }
+.catalog :global(.course-progress) { background: linear-gradient(120deg, #f3f8ff, #edf5fc); }
+.catalog :global(.course-progress strong) { color: var(--primary); }
+.catalog :global(progress::-webkit-progress-value) { background: var(--catalog-gradient); }
+.catalog :global(progress::-moz-progress-bar) { background: var(--catalog-gradient); }
+.catalog :global(.chapter[open] > summary) { background: linear-gradient(120deg, #f4f9ff, #edf5fc); }
+.catalog :global(.button:not(.secondary):not(.ghost):not(.danger):not(.completed-button)) {
+  background: var(--catalog-gradient);
+  box-shadow: 0 5px 12px #2563b81a;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .catalog :global(.teacher-list > li:hover) { border-color: #b8d4ee; box-shadow: 0 12px 28px #2563b810; }
+  .catalog :global(.teacher-row:hover .teacher-action) { border-color: #94bce3; background: #eaf3fc; }
+  .catalog :global(.selection-item:not(.active):hover),
+  .catalog :global(.filter-tabs a:not([aria-current]):hover) { background: #f0f7ff; border-color: #c5dcf3; color: var(--primary); }
+}
+
+@media (max-width: 1100px) {
+  .catalog :global(.split-layout) { gap: 20px; }
+  .catalog :global(.list-sidebar), .catalog :global(.detail-panel) { padding: 12px; }
+  .catalog :global(.teacher-row) { flex-wrap: wrap; }
+  .catalog :global(.teacher-action) { margin-left: auto; }
+  .catalog :global(.selection-item) { padding: 3px 8px; gap: 10px; }
+}
+
+@media (max-width: 767px) {
+  :global(.app-content):has(.catalog) { padding-inline: 16px; }
+  .catalog :global(.split-layout) { grid-template-columns: minmax(0, 1fr); }
+  .catalog :global(.list-sidebar), .catalog :global(.detail-panel) { padding: 12px; border-radius: 20px; }
+  .catalog :global(.list-sidebar nav) { max-height: 290px; }
+  .catalog :global(.filter-tabs) { width: 100%; gap: 10px; margin-bottom: 24px; }
+  .catalog :global(.filter-tabs a) { flex: 1; padding: 12px; font-size: 13px; border-radius: 16px; }
+  .catalog :global(.teacher-row) { gap: 8px; padding: 4px 10px; }
+  .catalog :global(.teacher-avatar) { width: 32px; height: 32px; border-radius: 12px; }
+  .catalog :global(.teacher-row strong) { font-size: 17px; }
+  .catalog :global(.teacher-action) { width: 100%; }
+}
+
+.catalog .subjectHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 0;
+  margin: 0 0 8px;
+  border: 0;
+}
+
+.subjectTitle { min-width: 0; }
+.subjectTitle > p { margin: 0; font-size: 12px; }
+.subjectTitle > h2 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 800; overflow-wrap: anywhere; }
+.subjectDescription { flex-basis: 100%; margin: 0; color: #64748b; font-size: 14px; }
+
+.catalog .subjectHeader :global(.admin-controls) {
+  padding: 0;
+  margin: 0;
+  gap: 6px;
+  border: 0;
+}
+
+.catalog :global(.selection-item:last-child) { margin-bottom: 0; }
+.catalog :global(.teacher-list .admin-controls) { padding: 4px 10px; }
+
+.catalog :global(.admin-controls .record-controls > button) { min-height: 34px; padding-block: 4px; }
+.catalog :global(.detail-panel > .empty-state) { padding: 12px; }
+.catalog :global(.detail-panel > .empty-state .empty-symbol) { margin-bottom: 8px; }
+
+/* Course cards keep navigation and management actions separate. */
+.courseCard { overflow: hidden; margin-bottom: 8px; border: 1px solid #e2e8f0; border-radius: 14px; background: white; }
+.courseCard:last-child { margin-bottom: 0; }
+.courseCard[data-active="true"] { border-color: #84b3ed; background: #eff6ff; box-shadow: inset 3px 0 #2563b8; }
+.courseLink { display: block; padding: 12px; color: #334155; }
+.courseLink:hover { background: #eaf3ff; }
+.courseLink:focus-visible { outline: 2px solid #2563b8; outline-offset: -3px; border-radius: 12px; }
+.courseName { display: flex; align-items: center; gap: 8px; }
+.courseName strong { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 16px; line-height: 1.4; }
+.courseName :global(.icon) { color: #2563b8; flex-shrink: 0; width: 18px; height: 18px; }
+.cardProgress { display: block; margin-top: 10px; }
+.cardProgress > span { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; color: #475569; }
+.cardProgress strong { color: #2563b8; }
+.catalog .cardProgress progress { display: block; width: 100%; height: 5px; margin: 6px 0 0; border: 0; border-radius: 99px; overflow: hidden; appearance: none; background: #dce7f5; }
+.catalog .cardProgress progress::-webkit-progress-bar { background: #dce7f5; border-radius: 99px; }
+.cardFooter { display: flex; justify-content: flex-end; padding: 3px 8px; border-top: 1px solid #e2e8f0; }
+.catalog .cardFooter :global(.record-controls) { margin: 0; gap: 4px; }
+.catalog :global(.record-controls-icons > button) { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; width: 32px; padding: 6px; border-radius: 8px; background: transparent; border-color: transparent; box-shadow: none; }
+.catalog :global(.record-controls-icons > button:hover) { background: #dbeafe; border-color: #bfdbfe; }
+.catalog :global(.record-controls-icons > button .icon) { width: 16px; height: 16px; }
+.catalog :global(.course-progress-featured) { margin: 0 0 16px; padding: 16px; border: 1px solid #dbe8fa; border-radius: 16px; background: linear-gradient(120deg, #f0f7ff, #f8fbff); box-shadow: none; }
+.catalog :global(.progress-heading) { display: flex; align-items: center; gap: 10px; }
+.catalog :global(.progress-heading > div) { flex: 1; min-width: 0; }
+.catalog :global(.progress-symbol) { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; border-radius: 12px; color: #2563b8; background: #dcecff; }
+.catalog :global(.progress-heading h2) { margin: 0; font-size: 16px; font-weight: 750; color: #1e3a5f; }
+.catalog :global(.progress-heading p) { margin: 3px 0 0; font-size: 14px; line-height: 1.4; color: #475569; }
+.catalog :global(.progress-percent) { font-size: 30px; line-height: 1; letter-spacing: -.04em; }
+.catalog :global(.progress-percent > span) { font-size: 15px; margin-left: 2px; }
+.catalog :global(.course-progress-featured progress) { display: block; width: 100%; height: 8px; margin: 14px 0 8px; overflow: hidden; border: 0; border-radius: 99px; appearance: none; background: #dce7f5; }
+.catalog :global(.course-progress-featured progress::-webkit-progress-bar) { background: #dce7f5; border-radius: 99px; }
+.catalog :global(.course-progress-featured progress::-webkit-progress-value) { border-radius: 99px; background: linear-gradient(90deg, #2563b8, #38bdf8); }
+.catalog :global(.course-progress-featured progress::-moz-progress-bar) { border-radius: 99px; background: linear-gradient(90deg, #2563b8, #38bdf8); }
+.catalog :global(.progress-stats) { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; color: #475569; }
+.catalog :global(.progress-stats b) { color: #1e4f89; }
+
+.catalog :global(.curriculum-card-footer) { display: flex; justify-content: flex-end; flex-shrink: 0; padding: 0; margin: 0; border: 0; }
+.catalog :global(.curriculum-card-footer .record-controls) { margin: 0; flex-wrap: nowrap; }
+.catalog :global(.curriculum-lesson-card) { display: flex; flex-wrap: nowrap; align-items: center; gap: 12px; padding: 8px 10px; }
+.catalog :global(.curriculum-lesson-card > a) { display: block; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.catalog :global(.next-lesson-button) { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; margin-top: 12px; padding: 8px 14px; border: 0; border-radius: 10px; background: #0f766e; color: white; font-size: 15px; font-weight: 600; cursor: pointer; }
+.catalog :global(.next-lesson-button:hover) { background: #115e59; }
+.catalog :global(.lesson-link.next-lesson) { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; }
+.catalog :global(.lesson-link.next-lesson:hover) { background: #d1fae5; }
+.catalog :global(.next-lesson .lesson-check) { color: #0f766e; background: #ccfbf1; }
+.catalog :global(.next-lesson-label) { margin-left: auto; flex-shrink: 0; padding: 3px 7px; border-radius: 6px; background: #ccfbf1; color: #0f766e; font-size: 11px; font-weight: 700; }
+
+.catalog :global(.admin-chapter-card) { position: relative; }
+.catalog :global(.admin-chapter-card > .chapter > summary) { position: relative; min-height: 64px; padding-left: 16px; padding-right: 116px; }
+.catalog :global(.admin-chapter-card > .chapter > summary > .chevron) { position: absolute; right: 12px; top: 22px; margin: 0; width: 20px; height: 20px; }
+.catalog :global(.chapter-header-actions) { position: absolute; z-index: 1; top: 16px; right: 38px; }
+.catalog :global(.chapter-header-actions > .record-controls) { margin: 0; gap: 4px; }
+
+/* Compact curriculum cards with consistent lesson states. */
+.catalog :global(.student-curriculum .chapter) { border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 2px 8px #0f172a04; overflow: hidden; margin: 12px 0; }
+.catalog :global(.student-curriculum .chapter > summary) { padding: 14px 16px; gap: 12px; background: #fff; cursor: pointer; }
+.catalog :global(.student-curriculum .chapter[open] > summary) { margin-bottom: 0; border-bottom: 1px solid #edf1f5; background: #f8fafc; }
+.catalog :global(.student-curriculum .chapter > summary:hover) { background: #f1f5f9; }
+.catalog :global(.student-curriculum .chapter-number) { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; padding: 0; border: 1px solid #dbeafe; border-radius: 11px; color: #2563b8; background: #eff6ff; font-size: 14px; font-weight: 750; }
+.catalog :global(.student-curriculum summary strong) { color: #1e293b; font-size: 17px; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.catalog :global(.student-curriculum summary small) { font-size: 14px; color: #475569; margin-top: 4px; }
+.catalog :global(.chapter-meta-dot) { margin: 0 7px; color: #94a3b8; }
+.catalog :global(.student-curriculum .chapter > ul) { display: grid; gap: 4px; padding: 8px; }
+.catalog :global(.student-curriculum .lesson-link) { min-height: 50px; margin: 0; padding: 8px 10px; gap: 10px; border: 1px solid transparent; border-radius: 10px; color: #475569; font-size: 13px; transform: none; box-shadow: none; }
+.catalog :global(.student-curriculum .lesson-link:hover) { background: #f8fafc; color: #1e293b; border-color: #e2e8f0; transform: none; box-shadow: none; }
+.catalog :global(.student-curriculum .lesson-check) { width: 30px; height: 30px; border-radius: 9px; color: #64748b; background: #f1f5f9; }
+.catalog :global(.student-curriculum .lesson-check .icon) { width: 16px; height: 16px; }
+.catalog :global(.student-curriculum .lesson-check.completed) { color: #059669; background: #ecfdf5; }
+.catalog :global(.student-curriculum .lesson-title) { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+.catalog :global(.student-curriculum .lesson-arrow) { width: 15px; height: 15px; flex-shrink: 0; color: #94a3b8; }
+.catalog :global(.student-curriculum .lesson-link.next-lesson) { color: #115e59; background: #f0fdfa; border-color: #c4e9e2; box-shadow: inset 3px 0 #0d9488; }
+.catalog :global(.student-curriculum .lesson-link.next-lesson:hover) { background: #e6f7f3; border-color: #99d8cd; }
+.catalog :global(.student-curriculum .next-lesson .lesson-check) { background: #d5f3ea; color: #0f766e; }
+.catalog :global(.student-curriculum .next-lesson .lesson-title) { font-weight: 650; }
+.catalog :global(.student-curriculum .next-lesson-label) { padding: 4px 8px; border-radius: 99px; color: #0f766e; background: #dcf5ed; font-size: 12px; letter-spacing: .01em; }
+.catalog :global(.student-curriculum .lesson-link.active) { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+@media (max-width: 480px) {
+  .catalog :global(.student-curriculum .chapter > summary) { padding: 12px; gap: 10px; }
+  .catalog :global(.student-curriculum .lesson-link) { gap: 8px; padding: 8px; }
+  .catalog :global(.student-curriculum .chapter > ul) { padding: 6px; }
+}
+
+.catalog :global(.breadcrumb) { font-size: 14px; line-height: 1.5; color: #475569; }
+.catalog :global(.badge) { font-size: 14px; }
+.catalog :global(.section-label) { font-size: 15px; }
+.cardProgress > span { flex-wrap: wrap; line-height: 1.5; gap: 2px 8px; }
+
+.courseHeader { display: grid; gap: 8px; }
+.catalog .courseHeader :global(.page-heading) { margin: 0; }
+.catalog .courseHeader :global(.breadcrumb) { margin: 0; padding: 0; }
+.catalog .courseHeader :global(.breadcrumb ol) { font-size: 16px; line-height: 1.5; color: #475569; gap: 8px; }
+.catalog .courseHeader :global(.breadcrumb a) { min-height: 28px; font-weight: 500; }
+.catalog .courseHeader :global(.breadcrumb [aria-current]) { font-weight: 600; color: #334155; overflow-wrap: anywhere; }
+:global(.app-content):has(.courseHeader) { padding-top: 16px; }
+
+
+.catalogToolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.catalog .catalogToolbar :global(.filter-tabs) { margin: 0; width: auto; }
+.catalogSearch { display: flex; align-items: center; gap: 4px; width: 280px; max-width: 100%; min-height: 42px; margin-left: auto; padding: 0 6px; border: 1px solid #dfe5f0; border-radius: 12px; background: white; }
+.catalogSearch:focus-within { border-color: #93bcea; box-shadow: 0 0 0 3px #2563b810; }
+.catalogSearch input[type="search"] { flex: 1; min-width: 0; width: 0; min-height: 40px; padding: 6px 2px; border: 0; border-radius: 0; background: transparent; font-size: 14px; box-shadow: none; outline: none; }
+.catalogSearch > button, .catalogSearch > a { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px; color: #64748b; }
+.catalogSearch > button:hover, .catalogSearch > a:hover { background: #eff6ff; color: #2563b8; }
+.catalogSearch :global(.icon) { width: 18px; height: 18px; }
+@media (max-width: 600px) { .catalogSearch { width: 100%; } .catalog .catalogToolbar :global(.filter-tabs) { width: 100%; } }

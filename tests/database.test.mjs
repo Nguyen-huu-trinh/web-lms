@@ -43,6 +43,27 @@ test("LMS migration and security boundaries", async (t) => {
     await db.exec("insert into menus(name,price) values ('Menu A',100)");
     await db.exec(await readFile(new URL("../supabase/migrations/202610060002_password_auth.sql", import.meta.url), "utf8"));
 
+    await db.exec(await readFile(new URL("../supabase/migrations/202610070001_student_usernames.sql", import.meta.url), "utf8"));
+
+    await t.test("username grants enforce permissions and atomic account identity", async () => {
+      const fresh = uid(91), conflict = uid(92);
+      assert.equal((await query("select username from profiles where id=$1", [student])).rows[0].username, "student");
+      await query("insert into auth.users(id,email) values ($1,'new_student@students.lms.invalid'),($2,'admin@students.lms.invalid')", [fresh, conflict]);
+      await login(student);
+      await assert.rejects(query("select grant_student_username_access($1,$2,$3,'subject',$4,'new_student')", [admin,sid,fresh,subject]));
+      await db.exec("reset role; set role service_role");
+      await assert.rejects(query("select grant_student_username_access($1,$2,$3,'subject',$4,'new_student')", [admin,newSid,fresh,subject]));
+      await query("select grant_student_username_access($1,$2,$3,'subject',$4,'new_student')", [admin,sid,fresh,subject]);
+      await query("select grant_student_username_access($1,$2,$3,'subject',$4,'new_student')", [admin,sid,fresh,subject]);
+      await assert.rejects(query("select grant_student_username_access($1,$2,$3,'teacher',$4,'renamed')", [admin,sid,fresh,teacherB]));
+      await assert.rejects(query("select grant_student_username_access($1,$2,$3,'subject',$4,'admin')", [admin,sid,conflict,subject]));
+      await db.exec("reset role");
+      assert.equal((await query("select username from profiles where id=$1", [fresh])).rows[0].username, "new_student");
+      assert.equal((await query("select count(*)::int as count from student_teacher_access where student_id=$1", [fresh])).rows[0].count, 0);
+      assert.equal((await query("select provisioned_by_admin from profiles where id=$1", [conflict])).rows[0].provisioned_by_admin, false);
+      assert.equal((await query("select encrypted_password from auth.users where id=$1", [fresh])).rows[0].encrypted_password, "test-hash");
+    });
+
     await t.test("migration preserves Admin and requires first password change for students", async () => {
       assert.equal(await scalar(`select must_change_password from profiles where id='${admin}'`), false);
       assert.equal(await scalar(`select must_change_password from profiles where id='${student}'`), true);

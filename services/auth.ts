@@ -27,10 +27,14 @@ export async function requireUser(requiredRole?: Role, allowPasswordChange = fal
   const client = await createClient();
   const { data, error } = await client.auth.getClaims();
   if (error || !data?.claims.sub) redirect("/login");
-  const { data: active, error: activeError } = await client.rpc("session_is_active");
+  const [sessionResult, profileResult] = await Promise.all([
+    client.rpc("session_is_active"),
+    client.from("profiles").select("*").eq("id", data.claims.sub).single(),
+  ]);
+  const { data: active, error: activeError } = sessionResult;
   if (activeError) throw new Error("Không thể kiểm tra phiên đăng nhập. Vui lòng thử lại.");
   if (!active) redirect("/login?error=session");
-  const { data: profile, error: profileError } = await client.from("profiles").select("*").eq("id", data.claims.sub).single();
+  const { data: profile, error: profileError } = profileResult;
   if (profileError || !profile) throw new Error("Không thể đọc hồ sơ.");
   if (profile.role === "STUDENT" && !profile.provisioned_by_admin) redirect("/login?error=credentials");
   if (requiredRole && profile.role !== requiredRole) throw new Error("Không có quyền thực hiện.");

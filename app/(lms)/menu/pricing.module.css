@@ -1,0 +1,28 @@
+.page { max-width: 1100px; margin: 0 auto; color: #263247; }
+.heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+.eyebrow { color: #2563b8; font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+.heading h1 { margin: 4px 0 8px; font-size: 32px; font-weight: 800; line-height: 1.25; letter-spacing: -.035em; }
+.heading > div > p:last-child { color: #64748b; font-size: 15px; }
+.panel { border: 1px solid #dfe5f0; border-radius: 20px; background: #fff; box-shadow: 0 6px 24px #0f172a04; overflow: hidden; }
+.panelHeader { display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #edf1f6; background: #f8fbff; }
+.symbol, .emptyIcon { display: grid; place-items: center; color: #2563b8; background: #eaf2ff; border-radius: 12px; width: 42px; height: 42px; flex-shrink: 0; }
+.panelHeader h2 { font-size: 17px; font-weight: 700; }
+.panelHeader p { font-size: 13px; color: #64748b; margin-top: 2px; }
+.currency { margin-left: auto; color: #475569; font-size: 13px; padding: 5px 10px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; }
+.list { padding: 0 24px; }
+.list > li { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; border-bottom: 1px solid #edf1f6; }
+.list > li:last-child { border-bottom: 0; }
+.itemName { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.itemName h3 { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.itemIcon { color: #94a3b8; }
+.price { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 12px; flex-shrink: 0; }
+.price strong { color: #2563b8; font-size: 19px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.price :global(.record-controls) { margin: 0; gap: 4px; }
+.price :global(.record-controls-icons > button) { display: grid; place-items: center; width: 34px; min-height: 34px; padding: 6px; box-shadow: none; border-color: transparent; background: #f8fafc; border-radius: 8px; }
+.price :global(.icon) { width: 16px; height: 16px; }
+.empty { display: flex; flex-direction: column; align-items: center; padding: 44px 20px; text-align: center; }
+.emptyIcon { width: 56px; height: 56px; border-radius: 16px; margin-bottom: 16px; }
+.emptyIcon :global(.icon) { width: 26px; height: 26px; }
+.empty h3 { font-size: 18px; font-weight: 650; }
+.empty p { max-width: 420px; margin-top: 6px; color: #64748b; font-size: 14px; }
+@media (max-width: 600px) { .heading h1 { font-size: 28px; } .panelHeader { padding: 16px; flex-wrap: wrap; } .list { padding: 0 16px; } .list > li { flex-wrap: wrap; gap: 10px; padding: 16px 0; } .price { margin-left: auto; } .currency { font-size: 12px; } }

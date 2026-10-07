@@ -70,7 +70,7 @@ export async function removeRecord(context: MutationContext) {
   const { data,error } = await client.from(context.entity).delete().eq("id",context.id).select("id");
   if(error) throw error;
   if(!data.length) throw new InputError("Dữ liệu đã bị xóa hoặc bạn không còn quyền.");
-  return `${destination}${destination.includes("?") ? "&" : "?"}notice=deleted`;
+  return destination;
 }
 export async function revokeAccess(kind: "subject" | "teacher", targetId: string, accessId: string) {
   const { client } = await requireUser("ADMIN");

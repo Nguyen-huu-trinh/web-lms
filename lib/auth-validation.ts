@@ -10,3 +10,14 @@ export function validatePasswordChange(current: string, password: string, confir
   if (password !== confirm) throw new Error("Hai ô mật khẩu mới không khớp.");
   if (password === current || password === "123456") throw new Error("Chọn mật khẩu mới khác mật khẩu hiện tại và mật khẩu mặc định.");
 }
+
+export function normalizeUsername(value: unknown) {
+  if (typeof value !== "string") throw new Error("Tên đăng nhập không hợp lệ.");
+  const username = value.trim().toLowerCase();
+  if (!/^[a-z0-9_]{3,50}$/.test(username)) throw new Error("Tên đăng nhập cần 3–50 ký tự, chỉ gồm chữ không dấu, số và dấu gạch dưới (_).");
+  return username;
+}
+
+export function studentEmailFromUsername(value: unknown) {
+  return `${normalizeUsername(value)}@students.lms.invalid`;
+}

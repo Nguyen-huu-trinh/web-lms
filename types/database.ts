@@ -42,6 +42,7 @@ export type Database = {
       session_is_active: { Args: Record<string, never>; Returns: boolean };
       end_session: { Args: Record<string, never>; Returns: undefined };
       find_student_account: { Args: { account_email: string }; Returns: { id: string; profile_id: string | null; role: Role | null; has_password: boolean; auth_exists: boolean }[] };
+      grant_student_username_access: { Args: { actor_id: string; actor_session: string; student: string; target_kind: string; target_id: string; student_username: string }; Returns: undefined };
       grant_student_access: { Args: { actor_id: string; actor_session: string; student: string; target_kind: string; target_id: string }; Returns: undefined };
     };
     Enums: { [_ in never]: never };

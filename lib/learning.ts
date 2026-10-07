@@ -30,3 +30,13 @@ export function videoEmbed(provider: string, raw: string): string | null {
   const id = url.pathname.match(/^\/file\/d\/([\w-]+)(?:\/|$)/)?.[1] ?? url.searchParams.get("id");
   return id && /^[\w-]+$/.test(id) ? `https://drive.google.com/file/d/${id}/preview` : null;
 }
+
+// Follow chapter order before lesson order, skipping completed lessons.
+export function nextIncompleteLesson<T extends { id: string; chapter_id: string; order_index: number }>(chapters: { id: string; order_index: number }[], lessons: T[], completed: string[]): T | undefined {
+  const done = new Set(completed);
+  const ordered = [...chapters].sort((a,b) => a.order_index - b.order_index || a.id.localeCompare(b.id));
+  for (const chapter of ordered) {
+    const next = lessons.filter((lesson) => lesson.chapter_id === chapter.id && !done.has(lesson.id)).sort((a,b) => a.order_index - b.order_index || a.id.localeCompare(b.id))[0];
+    if (next) return next;
+  }
+}

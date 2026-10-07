@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { materialLink, videoEmbed, progressSummary, isUuid } from "../lib/learning.ts";
+import { materialLink, videoEmbed, progressSummary, nextIncompleteLesson, isUuid } from "../lib/learning.ts";
 import { allRows } from "../repositories/pagination.ts";
 
 test("YouTube supports watch, short links, shorts and embed without trusting arbitrary hosts", () => {
@@ -34,4 +34,14 @@ test("pagination reads beyond the default row cap and propagates errors", async 
 test("malformed deep-link IDs are rejected before querying", () => {
   assert.ok(isUuid("00000000-0000-4000-8000-000000000001"));
   for (const value of ["", "-".repeat(36), "not-a-uuid", "../login"]) assert.equal(isUuid(value),false);
+});
+
+test("next lesson follows chapter order, skips completed lessons and handles finished or empty courses", () => {
+  const chapters = [{id:"b",order_index:2},{id:"a",order_index:1}];
+  const lessons = [{id:"b1",chapter_id:"b",order_index:0},{id:"a2",chapter_id:"a",order_index:2},{id:"a1",chapter_id:"a",order_index:1}];
+  assert.equal(nextIncompleteLesson(chapters, lessons, [])?.id, "a1");
+  assert.equal(nextIncompleteLesson(chapters, lessons, ["a1"])?.id, "a2");
+  assert.equal(nextIncompleteLesson(chapters, lessons, ["a1", "a2"])?.id, "b1");
+  assert.equal(nextIncompleteLesson(chapters, lessons, ["a1", "a2", "b1"]), undefined);
+  assert.equal(nextIncompleteLesson(chapters, [], []), undefined);
 });

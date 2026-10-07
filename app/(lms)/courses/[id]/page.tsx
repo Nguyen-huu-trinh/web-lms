@@ -1,5 +1,5 @@
 import { requireUser } from "@/services/auth";
-import { courseContent, teacherContext, teacherCourses } from "@/repositories/lms";
+import { courseContent, courseProgressSummaries, teacherContext, teacherCourses } from "@/repositories/lms";
 import { isUuid } from "@/lib/learning";
 import { AccessDenied } from "@/components/learning/shared";
 import { CourseView } from "@/components/learning/course-view";
@@ -12,5 +12,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
   const context = await teacherContext(client, content.course.teacher_id, profile);
   if (!context) return <AccessDenied />;
   const courses = await teacherCourses(client, context.teacher.id);
-  return <CourseView {...context} courses={courses} content={content} admin={profile.role === "ADMIN"} />;
+  const progressByCourse = await courseProgressSummaries(client, courses.filter((course) => course.id !== content?.course.id).map((course) => course.id), profile.id);
+  if (content) progressByCourse[content.course.id] = { count: content.count, total: content.total, percent: content.percent };
+  return <CourseView {...context} courses={courses} progressByCourse={progressByCourse} content={content} admin={profile.role === "ADMIN"} />;
 }

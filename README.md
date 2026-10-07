@@ -1,10 +1,14 @@
+# Cập nhật đăng nhập học sinh
+
+Đọc [hướng dẫn chuyển sang tên đăng nhập](docs/student-usernames.md) và chạy migration `202610070001_student_usernames.sql` trước khi sử dụng phiên bản mới.
+
 # LMS — Courses, Lessons và quản trị
 
 Giao diện đã được redesign theo Modern Education SaaS với xanh dương–bạc, giữ nguyên business logic. Xem [báo cáo redesign](docs/ui-redesign.md) về design system, các màn hình và phạm vi kiểm thử.
 
 Courses/Lesson/Progress/Menu và các chức năng quản trị đã được kết nối Supabase. Xem [báo cáo Prompt 3](docs/prompt-3.md) để biết phạm vi, kết quả kiểm thử thực tế và các điều kiện vận hành còn chờ.
 
-Next.js App Router + TypeScript + Tailwind + Supabase PostgreSQL/Auth/Realtime. Student đăng nhập bằng **email/password**, Admin bằng **username/password**. Teacher chỉ là dữ liệu thuộc môn học. Không có đăng ký công khai, quên mật khẩu hay dashboard Admin riêng. Google Drive và YouTube vẫn được giữ làm nguồn tài liệu.
+Next.js App Router + TypeScript + Tailwind + Supabase PostgreSQL/Auth/Realtime. Student đăng nhập bằng **username/password**, Admin bằng **username/password**. Teacher chỉ là dữ liệu thuộc môn học. Không có đăng ký công khai, quên mật khẩu hay dashboard Admin riêng. Google Drive và YouTube vẫn được giữ làm nguồn tài liệu.
 
 ## Chạy dự án
 
