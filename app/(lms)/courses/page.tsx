@@ -1,3 +1,4 @@
+import { createLearningReader } from "@/lib/cache/learning";
 import { matchesCatalogSearch, isMyCoursesFilter } from "@/lib/catalog-search";
 import styles from "@/components/learning/catalog.module.css";
 import Link from "next/link";
@@ -11,7 +12,8 @@ import { EmptyState } from "@/components/learning/shared";
 import { RecordControls } from "@/components/admin/record-controls";
 import { StudentList } from "@/components/admin/student-list";
 export default async function Courses({ searchParams }: { searchParams: Promise<{ filter?: string; subject?: string; password?: string; q?: string }> }) {
-  const { client, profile } = await requireUser();
+  const { client, profile, sessionId } = await requireUser();
+  const read = createLearningReader(profile, sessionId);
   const query = await searchParams;
   const mine = isMyCoursesFilter(profile.role, query.filter);
   const search = (query.q ?? "").trim();
@@ -21,7 +23,7 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
     if (subject) params.set("subject", subject);
     return `/courses?${params.toString()}`;
   };
-  const data = await catalog(client, profile);
+  const data = await catalog(client, profile, read);
   const availableSubjects = mine ? data.subjects.filter((s) => data.mySubjectIds.has(s.id)) : data.subjects;
   const availableTeachers = mine ? data.teachers.filter((teacher) => data.accessibleTeacherIds.has(teacher.id)) : data.teachers;
   const matchingSubjectIds = new Set(availableTeachers.filter((teacher) => matchesCatalogSearch(teacher.name, search)).map((teacher) => teacher.subject_id));

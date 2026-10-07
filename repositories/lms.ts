@@ -1,14 +1,16 @@
 import "server-only";
+import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Course, Profile } from "@/types/database";
 import { allRows } from "./pagination";
+import { uncached, type DataReader } from "@/lib/cache/policy";
 import { progressSummary } from "@/lib/learning";
 type Client = SupabaseClient<Database>;
 
-export async function catalog(client: Client, profile: Profile) {
+export async function catalog(client: Client, profile: Profile, read: DataReader = uncached) {
   const [subjects, teachers, subjectAccess, teacherAccess] = await Promise.all([
-    allRows((a,b) => client.from("subjects").select("*").order("name").order("id").range(a,b)),
-    allRows((a,b) => client.from("teachers").select("*").order("name").order("id").range(a,b)),
+    read("catalog:subjects", () => allRows((a,b) => client.from("subjects").select("*").order("name").order("id").range(a,b))),
+    read("catalog:teachers", () => allRows((a,b) => client.from("teachers").select("*").order("name").order("id").range(a,b))),
     profile.role === "ADMIN" ? Promise.resolve([]) : allRows((a,b) => client.from("student_subject_access").select("subject_id").eq("student_id", profile.id).order("id").range(a,b)),
     profile.role === "ADMIN" ? Promise.resolve([]) : allRows((a,b) => client.from("student_teacher_access").select("teacher_id").eq("student_id", profile.id).order("id").range(a,b)),
   ]);
@@ -19,7 +21,7 @@ export async function catalog(client: Client, profile: Profile) {
   return { subjects, teachers, accessibleTeacherIds: new Set(accessibleTeachers.map((t) => t.id)), mySubjectIds };
 }
 
-export async function teacherContext(client: Client, teacherId: string, profile: Profile) {
+export const teacherContext = cache(async (client: Client, teacherId: string, profile: Profile) => {
   const { data: teacher, error } = await client.from("teachers").select("*").eq("id", teacherId).maybeSingle();
   if (error) throw new Error("Không thể tải giáo viên.");
   if (!teacher) return null;
@@ -38,10 +40,12 @@ export async function teacherContext(client: Client, teacherId: string, profile:
     if (!access.some((result) => result.data)) return null;
   }
   return { subject, teacher };
-}
+});
 
-export async function teacherCourses(client: Client, teacherId: string) {
-  return allRows((a,b) => client.from("courses").select("*").eq("teacher_id", teacherId).order("created_at").order("id").range(a,b));
+export async function teacherCourses(client: Client, teacherId: string, read: DataReader = uncached, profile?: Profile) {
+  // Never let a cache hit bypass current membership checks.
+  if (read !== uncached && (!profile || !await teacherContext(client, teacherId, profile))) return [];
+  return read("teacher:courses:" + teacherId, () => allRows((a,b) => client.from("courses").select("*").eq("teacher_id", teacherId).order("created_at").order("id").range(a,b)));
 }
 
 // Batch IDs to avoid long request URLs, paginate each batch to avoid row caps.
@@ -50,18 +54,22 @@ async function byIds<T>(ids: string[], fetch: (ids: string[], from: number, to: 
   for (let i = 0; i < ids.length; i += 100) results.push(...await allRows((a,b) => fetch(ids.slice(i,i+100), a,b)));
   return results;
 }
-export async function findCourse(client: Client, courseId: string) {
+export const findCourse = cache(async (client: Client, courseId: string) => {
   const { data, error } = await client.from("courses").select("*").eq("id", courseId).maybeSingle();
   if (error) throw new Error("Không thể tải khóa học.");
   return data;
-}
+});
 
-export async function courseContent(client: Client, courseId: string, studentId: string, knownCourse?: Course) {
-  const course = knownCourse ?? await findCourse(client, courseId);
+export async function courseContent(client: Client, courseId: string, studentId: string, knownCourse?: Course, read: DataReader = uncached) {
+  // A cached teacher list is not proof of access: recheck the course through RLS.
+  const course = read === uncached ? knownCourse ?? await findCourse(client, courseId) : await findCourse(client, courseId);
   if (!course) return null;
-  const chapters = await allRows((a,b) => client.from("chapters").select("*").eq("course_id", courseId).order("order_index").order("id").range(a,b));
-  const lessons = await byIds(chapters.map((c) => c.id), (ids,a,b) => client.from("lessons").select("*").in("chapter_id", ids).order("order_index").order("id").range(a,b));
-  lessons.sort((a,b) => a.order_index - b.order_index || a.id.localeCompare(b.id));
+  const { chapters, lessons } = await read("course:outline:" + courseId, async () => {
+    const chapters = await allRows((a,b) => client.from("chapters").select("*").eq("course_id", courseId).order("order_index").order("id").range(a,b));
+    const lessons = await byIds(chapters.map((c) => c.id), (ids,a,b) => client.from("lessons").select("*").in("chapter_id", ids).order("order_index").order("id").range(a,b));
+    lessons.sort((a,b) => a.order_index - b.order_index || a.id.localeCompare(b.id));
+    return { chapters, lessons };
+  });
   const progress = await byIds(lessons.map((l) => l.id), (ids,a,b) => client.from("user_progress").select("lesson_id").eq("student_id", studentId).eq("is_completed", true).in("lesson_id", ids).order("id").range(a,b));
   const completed = progress.map((p) => p.lesson_id);
   return { course, chapters, lessons, completed, ...progressSummary(lessons.map((l) => l.id), completed) };
@@ -86,7 +94,7 @@ export async function courseProgressSummaries(client: Client, courseIds: string[
 
 export type CourseContent = NonNullable<Awaited<ReturnType<typeof courseContent>>>;
 
-export async function lessonContent(client: Client, lessonId: string, profile: Profile) {
+export async function lessonContent(client: Client, lessonId: string, profile: Profile, read: DataReader = uncached) {
   const { data: lesson, error } = await client.from("lessons").select("*").eq("id", lessonId).maybeSingle();
   if (error) throw new Error("Không thể tải bài học.");
   if (!lesson) return null;
@@ -96,14 +104,14 @@ export async function lessonContent(client: Client, lessonId: string, profile: P
   const course = await findCourse(client, chapter.course_id);
   if (!course) return null;
   const [content, context, materials] = await Promise.all([
-    courseContent(client, course.id, profile.id, course),
+    courseContent(client, course.id, profile.id, course, read),
     teacherContext(client, course.teacher_id, profile),
-    allRows((a,b) => client.from("materials").select("*").eq("lesson_id", lesson.id).order("order_index").order("id").range(a,b)),
+    read("lesson:materials:" + lesson.id, () => allRows((a,b) => client.from("materials").select("*").eq("lesson_id", lesson.id).order("order_index").order("id").range(a,b))),
   ]);
   if (!content || !context) return null;
   return { lesson, chapter, content, ...context, materials };
 }
-export async function listMenus(client: Client) {
-  return allRows((a,b) => client.from("menus").select("*").order("name").order("id").range(a,b));
+export async function listMenus(client: Client, read: DataReader = uncached) {
+  return read("pricing", () => allRows((a,b) => client.from("menus").select("*").order("name").order("id").range(a,b)));
 }
 

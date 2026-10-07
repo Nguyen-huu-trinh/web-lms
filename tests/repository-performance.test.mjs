@@ -1,17 +1,19 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
+import { learningCacheKey } from "../lib/cache/policy.ts";
 import { createClient } from "@supabase/supabase-js";
 const repositoryUrl = new URL("../repositories/lms.ts", import.meta.url).href;
 registerHooks({ resolve(specifier, context, next) {
   if (context.parentURL === repositoryUrl) {
     if (specifier === "server-only") return { url: "data:text/javascript,export {}", shortCircuit: true };
     if (specifier === "./pagination") return { url: new URL("../repositories/pagination.ts", import.meta.url).href, shortCircuit: true };
+    if (specifier === "@/lib/cache/policy") return { url: new URL("../lib/cache/policy.ts", import.meta.url).href, shortCircuit: true };
     if (specifier === "@/lib/learning") return { url: new URL("../lib/learning.ts", import.meta.url).href, shortCircuit: true };
   }
   return next(specifier, context);
 } });
-const { courseContent, courseProgressSummaries, lessonContent, teacherContext } = await import(repositoryUrl);
+const { courseContent, courseProgressSummaries, lessonContent, teacherContext, teacherCourses, catalog, listMenus } = await import(repositoryUrl);
 function fixture(tables, failTable) {
   const calls = [];
   const client = createClient("https://example.test", "test-key", { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: async (input, init) => {
@@ -67,4 +69,78 @@ test("parallel lesson reads retain access denial and do not refetch course metad
   assert.equal(await lessonContent(denied.client, "lesson", { id: "student", role: "STUDENT" }), null);
   const failed = fixture(tables, "student_subject_access");
   await assert.rejects(teacherContext(failed.client, "teacher", { id: "student", role: "STUDENT" }));
+});
+
+
+// In-memory cache adapter tests repository behavior; production uses Next Data Cache.
+function memoryReader() {
+  const values = new Map();
+  return async (key, load) => {
+    if (!values.has(key)) values.set(key, await load());
+    return values.get(key);
+  };
+}
+
+test("cache keys isolate project, user, session, role and resource", () => {
+  const original = ["project", "user", "session", "STUDENT", "course:one"];
+  const base = learningCacheKey(...original);
+  for (let i = 0; i < original.length; i++) {
+    const changed = [...original]; changed[i] += "-different";
+    assert.notDeepEqual(learningCacheKey(...changed), base);
+  }
+});
+
+test("cached outline reuses metadata but progress and course authorization stay live", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  assert.equal((await courseContent(client, "course", "student", course, read)).percent, 100);
+  data.user_progress = [];
+  assert.equal((await courseContent(client, "course", "student", course, read)).percent, 0);
+  assert.equal(calls.filter((table) => table === "chapters").length, 1);
+  assert.equal(calls.filter((table) => table === "lessons").length, 1);
+  assert.equal(calls.filter((table) => table === "user_progress").length, 2);
+  // Simulate RLS denying a formerly visible course, even with knownCourse provided.
+  data.courses = [];
+  assert.equal(await courseContent(client, "course", "student", course, read), null);
+});
+
+test("teacher membership revocation denies a previously cached course list", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  assert.equal((await teacherCourses(client, "teacher", read, profile)).length, 1);
+  assert.equal((await teacherCourses(client, "teacher", read, profile)).length, 1);
+  assert.equal(calls.filter((table) => table === "courses").length, 1);
+  data.student_subject_access = [];
+  assert.deepEqual(await teacherCourses(client, "teacher", read, profile), []);
+  assert.deepEqual(await teacherCourses(client, "teacher", read), []);
+});
+
+test("catalog metadata and pricing reuse cache while grants are refreshed", async () => {
+  const data = structuredClone(tables);
+  data.menus = [{ id: "price", name: "Fee", price: 100 }];
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  assert.equal((await catalog(client, profile, read)).accessibleTeacherIds.has("teacher"), true);
+  data.student_subject_access = [];
+  assert.equal((await catalog(client, profile, read)).accessibleTeacherIds.has("teacher"), false);
+  assert.equal(calls.filter((table) => table === "subjects").length, 1);
+  assert.equal(calls.filter((table) => table === "teachers").length, 1);
+  await listMenus(client, read); await listMenus(client, read);
+  assert.equal(calls.filter((table) => table === "menus").length, 1);
+});
+
+test("a warm lesson cache cannot bypass a fresh RLS denial", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  assert.equal((await lessonContent(client, "lesson", profile, read)).materials.length, 1);
+  await lessonContent(client, "lesson", profile, read);
+  assert.equal(calls.filter((table) => table === "materials").length, 1);
+  data.lessons = [];
+  assert.equal(await lessonContent(client, "lesson", profile, read), null);
 });

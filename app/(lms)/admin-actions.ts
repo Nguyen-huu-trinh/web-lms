@@ -1,9 +1,11 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { LEARNING_CACHE_TAG, PRICING_CACHE_TAG } from "@/lib/cache/policy";
+import { revalidatePath, updateTag } from "next/cache";
 import { requireUser } from "@/services/auth";
 import { mutateRecord, removeRecord, revokeAccess } from "@/services/admin-mutations";
 import { InputError, entityNames, type MutationContext, type MutationResult } from "@/lib/admin-validation";
 function refreshLearning(entity?: MutationContext["entity"]) {
+  updateTag(entity === "menus" ? PRICING_CACHE_TAG : LEARNING_CACHE_TAG);
   if (entity === "menus") {
     revalidatePath("/menu");
     return;

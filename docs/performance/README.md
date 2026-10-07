@@ -1,5 +1,7 @@
 # Performance Audit
 
+> Cập nhật sau audit: đã bổ sung cache dữ liệu giữa các request cho các trang LMS. Xem [Chính sách cache hiện tại](./CACHE.md). Phần dưới ghi lại kết quả của đợt audit ban đầu.
+
 Ngày: 2026-10-07. URL được cung cấp: https://web-lms-chi.vercel.app.
 Phạm vi: app, components, services, repositories, Supabase clients, proxy, migrations, package/config, loading, realtime và các bộ test hiện có. Đã đọc tài liệu đi kèm Next.js 16.3.8 trước khi sửa.
 

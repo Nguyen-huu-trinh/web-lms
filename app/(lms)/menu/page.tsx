@@ -1,3 +1,4 @@
+import { createLearningReader } from "@/lib/cache/learning";
 import styles from "./pricing.module.css";
 import { Icon } from "@/components/ui/icon";
 import { requireUser } from "@/services/auth";
@@ -5,8 +6,9 @@ import { listMenus } from "@/repositories/lms";
 import { RecordControls } from "@/components/admin/record-controls";
 
 export default async function PricingPage() {
-  const { client, profile } = await requireUser();
-  const items = await listMenus(client);
+  const { client, profile, sessionId } = await requireUser();
+  const read = createLearningReader(profile, sessionId);
+  const items = await listMenus(client, read);
   const admin = profile.role === "ADMIN";
   const currency = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
   return <main className={styles.page}>
