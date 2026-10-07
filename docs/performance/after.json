@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-10-07T10:29:06.265Z",
+  "mode": "Read-only service-role repository audit; bypasses RLS. Not a browser or authenticated route benchmark.",
+  "http": [
+    {
+      "route": "/login",
+      "sample": 1,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/login",
+      "sample": 2,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/login",
+      "sample": 3,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/courses",
+      "sample": 1,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/courses",
+      "sample": 2,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/courses",
+      "sample": 3,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/menu",
+      "sample": 1,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/menu",
+      "sample": 2,
+      "error": "Request failed or timed out"
+    },
+    {
+      "route": "/menu",
+      "sample": 3,
+      "error": "Request failed or timed out"
+    }
+  ],
+  "repositories": [],
+  "limitations": [
+    "Browser waterfall / LCP / INP / authenticated navigation not measured",
+    "Supabase EXPLAIN and Vercel function telemetry not available",
+    "Repository measurement could not finish; inspect connectivity/configuration locally. No secrets logged."
+  ]
+}

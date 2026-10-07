@@ -5,7 +5,7 @@ import { PageHeading } from "@/components/ui/page-heading";
 import { Icon } from "@/components/ui/icon";
 import { requireUser } from "@/services/auth";
 import { catalog } from "@/repositories/lms";
-import { catalogAccess } from "@/repositories/catalog-access";
+import { catalogAccessCounts } from "@/repositories/catalog-access";
 import { AddStudentForm } from "@/components/add-student-form";
 import { EmptyState } from "@/components/learning/shared";
 import { RecordControls } from "@/components/admin/record-controls";
@@ -29,7 +29,7 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
   const selected = subjects.find((s) => s.id === query.subject) ?? subjects[0];
   const teachers = availableTeachers.filter((teacher) => teacher.subject_id === selected?.id && (matchesCatalogSearch(selected?.name ?? "", search) || matchesCatalogSearch(teacher.name, search)));
   const admin = profile.role === "ADMIN";
-  const access = admin && selected ? await catalogAccess(client, selected.id, teachers.map((teacher) => teacher.id)) : null;
+  const access = admin && selected ? await catalogAccessCounts(client, selected.id, teachers.map((teacher) => teacher.id)) : null;
   const subjectNames = new Map(data.subjects.map((subject) => [subject.id, subject.name]));
   return <main className={`${styles.catalog} space-y-6`}>
     <PageHeading eyebrow="Không gian học tập" title="Khóa học" description="Khám phá môn học và nội dung học tập của bạn." icon="book">{admin && <div className="page-actions"><RecordControls context={{entity:"subjects"}} /><AddStudentForm subjects={data.subjects} teachers={data.teachers.map((t) => ({id:t.id,name:`${t.name} · ${subjectNames.get(t.subject_id) ?? ""}`}))} /></div>}</PageHeading>
@@ -40,11 +40,11 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
     <div className="split-layout surface">
       <aside className="list-sidebar"><div className="sidebar-heading"><Icon name="layers" /><h2 className="section-label">Môn học</h2><span className="subtle-count">{subjects.length}</span></div><nav aria-label="Môn học">{subjects.map((s) => <Link key={s.id} className={selected?.id === s.id ? "selection-item active" : "selection-item"} aria-current={selected?.id === s.id ? "page" : undefined} href={catalogUrl(mine ? "mine" : "all", s.id)}><span className="selection-icon"><Icon name="book" /></span><span className="selection-copy">{s.name}</span><Icon name="chevron" className="ml-auto" /></Link>)}</nav></aside>
       <section className="detail-panel"><div className={styles.subjectHeader}><div className={styles.subjectTitle}><p className="eyebrow">Giáo viên</p><h2>{selected?.name}</h2></div>
-        {admin && selected && <div className="admin-controls"><RecordControls context={{entity:"subjects",id:selected.id}} values={{name:selected.name,description:selected.description}} /><AddStudentForm target={{kind:"subject",id:selected.id,name:selected.name}} /><StudentList kind="subject" targetId={selected.id} name={selected.name} rows={access?.subject ?? []} /><RecordControls context={{entity:"teachers",parentId:selected.id}} /></div>}
+        {admin && selected && <div className="admin-controls"><RecordControls context={{entity:"subjects",id:selected.id}} values={{name:selected.name,description:selected.description}} /><AddStudentForm target={{kind:"subject",id:selected.id,name:selected.name}} /><StudentList kind="subject" targetId={selected.id} name={selected.name} count={access?.subject ?? 0} /><RecordControls context={{entity:"teachers",parentId:selected.id}} /></div>}
         {selected?.description?.trim() && <p className={styles.subjectDescription}>{selected.description.trim()}</p>}</div>
         {!teachers.length && <EmptyState title="Môn học chưa có giáo viên." />}
         <ul className="teacher-list">{teachers.map((teacher) => <li key={teacher.id}><Link className="teacher-row" href={`/courses/teachers/${teacher.id}`}><span className="teacher-avatar" aria-hidden="true">{teacher.name.trim().slice(0,1).toUpperCase()}</span><span className="min-w-0 flex-1"><strong>{teacher.name}</strong></span><span className="teacher-action">{data.accessibleTeacherIds.has(teacher.id) ? "Xem các khóa học" : "Chưa được cấp quyền"}<Icon name="chevron" /></span></Link>
-        {admin && selected && <div className="admin-controls"><RecordControls context={{entity:"teachers",id:teacher.id,parentId:selected.id}} values={{name:teacher.name,bio:teacher.bio}} /><AddStudentForm target={{kind:"teacher",id:teacher.id,name:teacher.name}} /><StudentList kind="teacher" targetId={teacher.id} name={teacher.name} rows={access?.teachers.get(teacher.id) ?? []} /></div>}</li>)}</ul>
+        {admin && selected && <div className="admin-controls"><RecordControls context={{entity:"teachers",id:teacher.id,parentId:selected.id}} values={{name:teacher.name,bio:teacher.bio}} /><AddStudentForm target={{kind:"teacher",id:teacher.id,name:teacher.name}} /><StudentList kind="teacher" targetId={teacher.id} name={teacher.name} count={access?.teachers.get(teacher.id) ?? 0} /></div>}</li>)}</ul>
       </section>
     </div>}
   </main>;

@@ -12,7 +12,9 @@
     "test:auth": "node --test tests/auth.test.mjs",
     "check:auth": "node scripts/check-auth-config.mjs",
     "test:learning": "node --test tests/learning.test.mjs tests/catalog-access.test.mjs",
-    "test:admin": "node --test tests/admin.test.mjs"
+    "test:admin": "node --test tests/admin.test.mjs",
+    "test": "node --test tests/auth.test.mjs tests/admin.test.mjs tests/learning.test.mjs tests/catalog-access.test.mjs tests/catalog-search.test.mjs tests/database.test.mjs tests/repository-performance.test.mjs",
+    "audit:performance": "node scripts/audit-performance.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

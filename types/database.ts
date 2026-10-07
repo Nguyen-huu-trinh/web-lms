@@ -15,11 +15,12 @@ export type TeacherAccess = Base & { student_id: string; teacher_id: string };
 export type Progress = { id: string; student_id: string; lesson_id: string; is_completed: boolean; updated_at: string };
 export type Menu = Base & { name: string; price: number };
 export type ActiveSession = { id: string; user_id: string; session_id: string; updated_at: string };
-type Table<Row, Required extends keyof Row> = {
+type ProfileRelationship<Name extends string> = [{ foreignKeyName: Name; columns: ["student_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }];
+type Table<Row, Required extends keyof Row, Relationships = []> = {
   Row: Row;
   Insert: Pick<Row, Required> & Partial<Row>;
   Update: Partial<Row>;
-  Relationships: [];
+  Relationships: Relationships;
 };
 export type Database = {
   public: {
@@ -31,8 +32,8 @@ export type Database = {
       chapters: Table<Chapter, "course_id" | "title" | "order_index">;
       lessons: Table<Lesson, "chapter_id" | "title" | "order_index">;
       materials: Table<MaterialRow, "lesson_id" | "title" | "type" | "provider" | "url" | "order_index">;
-      student_subject_access: Table<SubjectAccess, "student_id" | "subject_id">;
-      student_teacher_access: Table<TeacherAccess, "student_id" | "teacher_id">;
+      student_subject_access: Table<SubjectAccess, "student_id" | "subject_id", ProfileRelationship<"student_subject_access_student_id_fkey">>;
+      student_teacher_access: Table<TeacherAccess, "student_id" | "teacher_id", ProfileRelationship<"student_teacher_access_student_id_fkey">>;
       user_progress: Table<Progress, "student_id" | "lesson_id">;
       menus: Table<Menu, "name" | "price">;
       active_sessions: Table<ActiveSession, "user_id" | "session_id">;

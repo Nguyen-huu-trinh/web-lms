@@ -5,8 +5,14 @@ import { EmptyState } from "./shared";
 export function ChapterList({ chapters, lessons, completed, currentLesson, nextLesson }: { chapters: Chapter[]; lessons: Lesson[]; completed: string[]; currentLesson?: string; nextLesson?: string }) {
   if (!chapters.length) return <EmptyState title="Khóa học chưa có chương." />;
   const done = new Set(completed);
+  const byChapter = new Map<string, Lesson[]>();
+  for (const lesson of lessons) {
+    const group = byChapter.get(lesson.chapter_id);
+    if (group) group.push(lesson);
+    else byChapter.set(lesson.chapter_id, [lesson]);
+  }
   return <div className="chapter-list student-curriculum">{chapters.map((chapter, index) => {
-    const children = lessons.filter((l) => l.chapter_id === chapter.id);
+    const children = byChapter.get(chapter.id) ?? [];
     const completedCount = children.filter((lesson) => done.has(lesson.id)).length;
     return <details key={chapter.id} id={`chapter-${chapter.id}`} open={currentLesson ? children.some((l) => l.id === currentLesson) : nextLesson ? children.some((l) => l.id === nextLesson) : index === 0} className="chapter">
       <summary><span className="chapter-number">{String(index + 1).padStart(2, "0")}</span><span className="min-w-0 flex-1"><strong>{chapter.title}</strong><small>{children.length} bài học<span className="chapter-meta-dot" aria-hidden="true">·</span>{completedCount}/{children.length} hoàn thành</small></span><Icon name="chevron" className="chevron" /></summary>

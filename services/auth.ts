@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -22,7 +23,8 @@ export async function activateFreshSession(client: Awaited<ReturnType<typeof cre
   return profile;
 }
 
-export async function requireUser(requiredRole?: Role, allowPasswordChange = false) {
+// React memoizes only within the current server render, never across users or requests.
+const currentUser = cache(async () => {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) redirect("/login");
   const client = await createClient();
   const { data, error } = await client.auth.getClaims();
@@ -37,7 +39,12 @@ export async function requireUser(requiredRole?: Role, allowPasswordChange = fal
   const { data: profile, error: profileError } = profileResult;
   if (profileError || !profile) throw new Error("Không thể đọc hồ sơ.");
   if (profile.role === "STUDENT" && !profile.provisioned_by_admin) redirect("/login?error=credentials");
-  if (requiredRole && profile.role !== requiredRole) throw new Error("Không có quyền thực hiện.");
-  if (profile.must_change_password && !allowPasswordChange) redirect("/change-password");
   return { client, profile, sessionId: String(data.claims.session_id) };
+});
+
+export async function requireUser(requiredRole?: Role, allowPasswordChange = false) {
+  const user = await currentUser();
+  if (requiredRole && user.profile.role !== requiredRole) throw new Error("Không có quyền thực hiện.");
+  if (user.profile.must_change_password && !allowPasswordChange) redirect("/change-password");
+  return user;
 }

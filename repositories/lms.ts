@@ -23,16 +23,19 @@ export async function teacherContext(client: Client, teacherId: string, profile:
   const { data: teacher, error } = await client.from("teachers").select("*").eq("id", teacherId).maybeSingle();
   if (error) throw new Error("Không thể tải giáo viên.");
   if (!teacher) return null;
-  const { data: subject, error: subjectError } = await client.from("subjects").select("*").eq("id", teacher.subject_id).maybeSingle();
-  if (subjectError) throw new Error("Không thể tải môn học.");
-  if (!subject) return null;
-  if (profile.role !== "ADMIN") {
-    const [a, b] = await Promise.all([
-      client.from("student_subject_access").select("id").eq("student_id", profile.id).eq("subject_id", subject.id).maybeSingle(),
+  const [subjectResult, access] = await Promise.all([
+    client.from("subjects").select("*").eq("id", teacher.subject_id).maybeSingle(),
+    profile.role === "ADMIN" ? Promise.resolve(null) : Promise.all([
+      client.from("student_subject_access").select("id").eq("student_id", profile.id).eq("subject_id", teacher.subject_id).maybeSingle(),
       client.from("student_teacher_access").select("id").eq("student_id", profile.id).eq("teacher_id", teacher.id).maybeSingle(),
-    ]);
-    if (a.error || b.error) throw new Error("Không thể kiểm tra quyền truy cập.");
-    if (!a.data && !b.data) return null;
+    ]),
+  ]);
+  if (subjectResult.error) throw new Error("Không thể tải môn học.");
+  const subject = subjectResult.data;
+  if (!subject) return null;
+  if (access) {
+    if (access.some((result) => result.error)) throw new Error("Không thể kiểm tra quyền truy cập.");
+    if (!access.some((result) => result.data)) return null;
   }
   return { subject, teacher };
 }
@@ -47,14 +50,15 @@ async function byIds<T>(ids: string[], fetch: (ids: string[], from: number, to: 
   for (let i = 0; i < ids.length; i += 100) results.push(...await allRows((a,b) => fetch(ids.slice(i,i+100), a,b)));
   return results;
 }
+export async function findCourse(client: Client, courseId: string) {
+  const { data, error } = await client.from("courses").select("*").eq("id", courseId).maybeSingle();
+  if (error) throw new Error("Không thể tải khóa học.");
+  return data;
+}
+
 export async function courseContent(client: Client, courseId: string, studentId: string, knownCourse?: Course) {
-  let course = knownCourse;
-  if (!course) {
-    const result = await client.from("courses").select("*").eq("id", courseId).maybeSingle();
-    if (result.error) throw new Error("Không thể tải khóa học.");
-    if (!result.data) return null;
-    course = result.data;
-  }
+  const course = knownCourse ?? await findCourse(client, courseId);
+  if (!course) return null;
   const chapters = await allRows((a,b) => client.from("chapters").select("*").eq("course_id", courseId).order("order_index").order("id").range(a,b));
   const lessons = await byIds(chapters.map((c) => c.id), (ids,a,b) => client.from("lessons").select("*").in("chapter_id", ids).order("order_index").order("id").range(a,b));
   lessons.sort((a,b) => a.order_index - b.order_index || a.id.localeCompare(b.id));
@@ -73,8 +77,11 @@ export async function courseProgressSummaries(client: Client, courseIds: string[
     const courseId = chapterCourses.get(lesson.chapter_id);
     if (courseId) courseLessons.get(courseId)?.push(lesson.id);
   }
-  const completed = progress.map((row) => row.lesson_id);
-  return Object.fromEntries(courseIds.map((id) => [id, progressSummary(courseLessons.get(id) ?? [], completed)]));
+  const completed = new Set(progress.map((row) => row.lesson_id));
+  return Object.fromEntries(courseIds.map((id) => {
+    const ids = courseLessons.get(id) ?? [];
+    return [id, progressSummary(ids, ids.filter((lessonId) => completed.has(lessonId)))];
+  }));
 }
 
 export type CourseContent = NonNullable<Awaited<ReturnType<typeof courseContent>>>;
@@ -86,11 +93,14 @@ export async function lessonContent(client: Client, lessonId: string, profile: P
   const { data: chapter, error: chapterError } = await client.from("chapters").select("*").eq("id", lesson.chapter_id).maybeSingle();
   if (chapterError) throw new Error("Không thể tải chương.");
   if (!chapter) return null;
-  const content = await courseContent(client, chapter.course_id, profile.id);
-  if (!content) return null;
-  const context = await teacherContext(client, content.course.teacher_id, profile);
-  if (!context) return null;
-  const materials = await allRows((a,b) => client.from("materials").select("*").eq("lesson_id", lesson.id).order("order_index").order("id").range(a,b));
+  const course = await findCourse(client, chapter.course_id);
+  if (!course) return null;
+  const [content, context, materials] = await Promise.all([
+    courseContent(client, course.id, profile.id, course),
+    teacherContext(client, course.teacher_id, profile),
+    allRows((a,b) => client.from("materials").select("*").eq("lesson_id", lesson.id).order("order_index").order("id").range(a,b)),
+  ]);
+  if (!content || !context) return null;
   return { lesson, chapter, content, ...context, materials };
 }
 export async function listMenus(client: Client) {

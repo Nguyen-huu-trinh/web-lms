@@ -1,0 +1,101 @@
+npm run typecheck — exit 0
+
+> web_lms@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+npm run lint — exit 0
+
+> web_lms@0.1.0 lint
+> eslint
+
+
+npm test — exit 0
+
+> web_lms@0.1.0 test
+> node --test tests/auth.test.mjs tests/admin.test.mjs tests/learning.test.mjs tests/catalog-access.test.mjs tests/catalog-search.test.mjs tests/database.test.mjs tests/repository-performance.test.mjs
+
+(node:14376) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/WEB/web_lms/lib/admin-validation.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to D:\WEB\web_lms\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ CRUD whitelist trims names and ignores role, IDs and parent reassignment (43.7077ms)
+✔ numeric validation rejects empty, negative, fractional order and overflow (1.187ms)
+✔ materials validate provider combinations and reject deceptive URLs (0.8084ms)
+✔ mutation context rejects unknown entities and malformed IDs (1.337ms)
+(node:16684) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/WEB/web_lms/services/student-provisioning-core.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to D:\WEB\web_lms\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ new account uses exactly the default password and grants access (2.862ms)
+✔ existing account only receives access; no password creation or reset (0.4639ms)
+✔ concurrent duplicate creation is recovered by exact lookup (0.5714ms)
+✔ admin, orphan, passwordless and duplicate legacy accounts are not altered (0.9557ms)
+✔ failed grant can be retried without recreating/resetting the new account (0.7126ms)
+✔ email normalization and password validation reject malformed input (0.9253ms)
+✔ usernames normalize casing and internal emails are deterministic (0.6625ms)
+(node:5480) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/WEB/web_lms/repositories/catalog-access.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to D:\WEB\web_lms\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ catalog access only returns visible subject/teachers and loads matching profiles (3.6836ms)
+✔ large subject lists preserve all rows across pagination and bounded profile batches (10.3968ms)
+✔ empty lists skip profile queries and database errors remain errors (0.5155ms)
+✔ catalog counts do not request student profiles or student identities (40.074ms)
+✔ student pages search the joined profile and bound the response to 50 rows (4.7028ms)
+✔ student list failures stay errors; empty and legacy-name results remain usable (3.0317ms)
+(node:15228) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/WEB/web_lms/lib/catalog-search.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to D:\WEB\web_lms\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ students default to mine while all remains an explicit choice (1.1892ms)
+✔ catalog search ignores Vietnamese accents, casing and extra whitespace (0.494ms)
+▶ LMS migration and security boundaries
+  ✔ username grants enforce permissions and atomic account identity (28.2386ms)
+  ✔ migration preserves Admin and requires first password change for students (35.8165ms)
+  ✔ provisioning is service-only, checks active Admin, is atomic and idempotent (26.2171ms)
+  ✔ self-created account cannot get LMS content even with a planted active row (5.2278ms)
+  ✔ profile trigger ignores role metadata and synchronizes email (3.8288ms)
+  ✔ teacher grant reveals subject but never sibling content (13.8044ms)
+  ✔ student cannot escalate role, alter catalog, or grant access (14.5391ms)
+  ✔ completion is explicit, isolated, and requires lesson access (23.4315ms)
+  ✔ subject grant includes both teachers; revocation removes access (25.8549ms)
+  ✔ combined grants span subjects without opening an ungranted sibling (21.8178ms)
+  ✔ replacement blocks old JWT at RLS; old logout cannot revoke new session (32.128ms)
+  ✔ constraints reject invalid providers, links and duplicate grants (9.6302ms)
+  ✔ admin CRUD and hard delete cascades (105.5156ms)
+✔ LMS migration and security boundaries (2635.1048ms)
+(node:16316) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/WEB/web_lms/lib/learning.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to D:\WEB\web_lms\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ YouTube supports watch, short links, shorts and embed without trusting arbitrary hosts (1.81ms)
+✔ Drive preview supports file and query links with safe external fallback (0.7057ms)
+✔ progress only counts unique lessons of this course and handles empty courses (1.1294ms)
+✔ pagination reads beyond the default row cap and propagates errors (1.2026ms)
+✔ malformed deep-link IDs are rejected before querying (0.8152ms)
+✔ next lesson follows chapter order, skips completed lessons and handles finished or empty courses (1.6928ms)
+(node:13692) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/WEB/web_lms/repositories/lms.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to D:\WEB\web_lms\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ known course avoids duplicate metadata reads and retains completion (41.8491ms)
+✔ batched progress stays isolated by course and handles empty courses (3.6971ms)
+✔ parallel lesson reads retain access denial and do not refetch course metadata (8.8896ms)
+ℹ tests 42
+ℹ suites 0
+ℹ pass 42
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2879.912
+
+npm run check:auth — exit 1
+
+> web_lms@0.1.0 check:auth
+> node scripts/check-auth-config.mjs
+
+Cannot reach Supabase; no credentials or server response were logged.

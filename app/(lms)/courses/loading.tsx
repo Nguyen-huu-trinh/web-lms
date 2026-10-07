@@ -1,0 +1,3 @@
+export default function LoadingCourses() {
+  return <main role="status" aria-busy="true" aria-label="Đang tải khóa học" className="space-y-6"><span className="sr-only">Đang tải khóa học…</span><div className="surface p-6" aria-hidden="true"><div className="skeleton w-1/3" /></div><div className="split-layout surface" aria-hidden="true"><aside className="list-sidebar space-y-4">{[0,1,2].map((id) => <div key={id} className="skeleton large" />)}</aside><section className="detail-panel space-y-4"><div className="skeleton w-2/3" /><div className="skeleton large" /><div className="skeleton large" /></section></div></main>;
+}
