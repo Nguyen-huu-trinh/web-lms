@@ -176,3 +176,25 @@ test("new request reader rechecks revoked access even with warm data cache", asy
   assert.equal(await next.teacher("teacher"), null);
   assert.deepEqual(await next.courses("teacher"), []);
 });
+
+
+test("fresh teacher list seeds course authorization without another course lookup", async () => {
+  const { client, calls } = fixture(tables);
+  const reader = createCourseReader(client, { id: "student", role: "STUDENT" }, memoryReader());
+  assert.equal((await reader.courses("teacher")).length, 1);
+  assert.equal((await reader.content("course")).percent, 100);
+  assert.equal(calls.filter((name) => name === "courses").length, 1);
+});
+
+test("panel reads trust live course RLS, reject wrong parents and never trust warm cache after revocation", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const profile = { id: "student", role: "STUDENT" };
+  const read = memoryReader();
+  assert.equal(await createCourseReader(client, profile, read).panel("other-teacher", "course"), null);
+  assert.equal(calls.includes("chapters"), false);
+  assert.equal((await createCourseReader(client, profile, read).panel("teacher", "course")).percent, 100);
+  assert.equal(calls.includes("teachers"), false);
+  data.courses = []; // Supabase courses RLS denies a revoked grant/session.
+  assert.equal(await createCourseReader(client, profile, read).panel("teacher", "course"), null);
+});

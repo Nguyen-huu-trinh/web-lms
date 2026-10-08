@@ -17,7 +17,6 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
   if (query.course && !selected) return <AccessDenied />;
   // Start optional sidebar data now, but never hold the main view for it.
   const progressByCourse = courseProgressSummaries(client, courses.filter((course) => course.id !== selected?.id).map((course) => course.id), profile.id).catch(() => null);
-  const content = selected ? await reader.content(selected.id) : null;
-  if (selected && !content) return <AccessDenied />;
-  return <CourseView navigationBase={`/courses/teachers/${teacherId}`} {...context} courses={courses} progressByCourse={progressByCourse} content={content} admin={profile.role === "ADMIN"} />;
+  const content = selected ? reader.content(selected.id) : Promise.resolve(null);
+  return <CourseView navigationBase={`/courses/teachers/${teacherId}`} {...context} courses={courses} initialId={selected?.id ?? null} progressByCourse={progressByCourse} content={content} admin={profile.role === "ADMIN"} />;
 }

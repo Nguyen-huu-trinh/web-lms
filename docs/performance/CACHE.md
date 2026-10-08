@@ -105,3 +105,15 @@ Typecheck/lint và 47 tests hiện có đạt; chưa xác minh tương tác trê
 - Kiểm tra: 54/54 tests đạt, lint và Next typegen + TypeScript đạt. Test streaming dùng React server renderer với navigation/action được mock; xác nhận shell xuất hiện trước tiến độ và lỗi tiến độ không làm hỏng shell. Test repository xác nhận dùng lại lookup trong request và kiểm tra quyền mới sau thu hồi ở request tiếp theo.
 - Chưa đo thời gian điều hướng production hoặc kiểm thử tương tác trình duyệt đăng nhập; kết quả trên không phải cam kết số mili giây cải thiện.
 - Production build chưa hoàn tất: next/font không kết nối được Google Fonts để tải Geist và Geist Mono. Chưa triển khai thay đổi lên website.
+
+
+## Tải khóa theo từng phần và GET cho học sinh — 2026-10-08
+
+- Khung giáo viên/danh sách khóa trả về trước khi nội dung khóa đầu tiên hoàn tất. CourseView truyền panel server bất đồng bộ xuống Suspense riêng; tiến độ khóa đầu có promise riêng nên không chờ tiến độ của các khóa còn lại. Lỗi nội dung có thông báo, lỗi tiến độ không hiển thị nhầm 0%.
+- createCourseReader.courses đọc danh sách khóa mới qua RLS song song với teacher context. Các course row mới được dùng làm lookup trong cùng request, tránh đọc lại khóa đang chọn. Đây là thay đổi có chủ ý: đường trang khóa không dùng Data Cache cho danh sách khóa; outline vẫn cache như cũ. Hàm teacherCourses cũ tiếp tục giữ hợp đồng cache của nó.
+- reader.panel kiểm tra course qua RLS và đối chiếu teacher_id. Chính sách courses hiện tại đã kiểm tra phiên, role/password/provisioning và quyền giáo viên/môn qua private.can_teacher; không cần đọc lại teachers/subjects/membership ở tầng ứng dụng cho panel. requireUser vẫn chạy cho mỗi request mới. Không dùng service-role.
+- Học sinh chuyển khóa bằng GET /courses/panel?teacher=UUID&course=UUID, trả JSON private/no-store và render StudentCourseDetail dùng chung giao diện với server. Admin tiếp tục nhận giao diện/nút quản trị qua Server Action, sử dụng cùng reader.panel đã rút gọn.
+- Hover/focus/touch khởi động GET sau 120ms; rời mục trước thời hạn hủy timer. Prefetch dùng chung bộ gộp request/cache với click, lỗi không giữ vĩnh viễn. Không tự động tải mọi khóa và không prefetch Server Actions của Admin. Snapshot chỉ tồn tại trong CourseBrowser hiện tại như trước.
+- Endpoint thêm Server-Timing auth/course để DevTools Network có thể phân biệt độ trễ xác thực và tải dữ liệu; không ghi token hay thông tin tài khoản vào header.
+- Validation: 60/60 tests, ESLint, next typegen + TypeScript đạt. Bao gồm shell trước nội dung ban đầu, lỗi tiến độ, fresh list tránh lookup lặp, panel sai giáo viên/thu hồi quyền, HTTP no-store, lỗi endpoint và phiên hết hạn. RLS được kiểm tra trong bộ PGlite hiện có; mock Supabase không thay thế việc kiểm thử PostgREST production.
+- Production build bị chặn bởi kết nối Google Fonts (Geist/Geist Mono). URL Vercel do người dùng cung cấp không truy cập được từ môi trường này (fetch failed); không có browser kết nối. Chưa xác minh deployment version, tương tác đăng nhập hay số mili giây cải thiện. Chưa deploy; cần đưa mã mới lên Vercel để áp dụng. Không có migration mới.

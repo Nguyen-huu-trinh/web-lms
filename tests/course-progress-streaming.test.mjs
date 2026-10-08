@@ -13,6 +13,8 @@ registerHooks({
   resolve(specifier, context, next) {
     if (context.parentURL === browserUrl) {
       if (specifier === "next/navigation") return moduleSource('export const useSearchParams = () => new URLSearchParams();');
+      if (specifier === "./student-course-detail") return moduleSource('export const StudentCourseDetail = () => null;');
+      if (specifier === "@/lib/load-course-content") return moduleSource('export const loadCourseContent = () => { throw new Error("Unexpected GET during SSR"); };');
       if (specifier.endsWith("panel-actions")) return moduleSource('export const loadCoursePanel = () => { throw new Error("Unexpected panel load during SSR"); };');
       if (specifier.endsWith("/icon")) return moduleSource('export const Icon = () => null;');
       if (specifier.endsWith(".css")) return moduleSource('export default {};');
@@ -54,4 +56,33 @@ for (const fail of [false, true]) test(fail ? "failed sibling progress does not 
   await ended;
   assert.match(html, fail ? /Chưa tải được tiến độ/ : /Chưa có bài học/);
   assert.deepEqual(errors, []);
+});
+
+
+test("course list streams while the initial course itself is still loading", { timeout: 5000 }, async (t) => {
+  let finish;
+  const content = new Promise((resolve) => { finish = resolve; });
+  const summary = content.then(() => ({ count: 0, total: 0, percent: 0 }));
+  function DelayedPanel() { return React.use(content); }
+  const output = new PassThrough();
+  let html = "";
+  output.on("data", (chunk) => { html += chunk.toString(); });
+  const ended = new Promise((resolve) => output.on("end", resolve));
+  let ready;
+  const shell = new Promise((resolve) => { ready = resolve; });
+  const stream = renderToPipeableStream(React.createElement(CourseBrowser, {
+    teacherId: "teacher", navigationBase: "/courses/teachers/teacher",
+    courses: [{ id: "a", title: "Course A" }], initialId: "a",
+    initialPanel: React.createElement(DelayedPanel), initialProgressPromise: summary,
+    progressByCourse: Promise.resolve({}), controls: {},
+  }), { onShellReady: ready });
+  t.after(() => { stream.abort(); output.destroy(); });
+  await shell;
+  stream.pipe(output);
+  assert.match(html, /Course A/);
+  assert.match(html, /Đang chuẩn bị nội dung khóa học/);
+  assert.doesNotMatch(html, /Initial content resolved/);
+  finish(React.createElement("p", null, "Initial content resolved"));
+  await ended;
+  assert.match(html, /Initial content resolved/);
 });

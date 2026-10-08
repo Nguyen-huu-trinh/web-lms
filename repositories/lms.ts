@@ -105,6 +105,7 @@ export async function courseProgressSummaries(client: Client, courseIds: string[
 export function createCourseReader(client: Client, profile: Profile, read: DataReader = uncached) {
   const courses = new Map<string, ReturnType<typeof findCourse>>();
   const teachers = new Map<string, ReturnType<typeof teacherContext>>();
+  const lists = new Map<string, Promise<Course[]>>();
   const getCourse = (id: string) => {
     if (!courses.has(id)) courses.set(id, findCourse(client, id));
     return courses.get(id)!;
@@ -116,9 +117,27 @@ export function createCourseReader(client: Client, profile: Profile, read: DataR
   return {
     course: getCourse,
     teacher: getTeacher,
-    async courses(teacherId: string) {
-      if (!await getTeacher(teacherId)) return [];
-      return readTeacherCourses(client, teacherId, read);
+    courses(teacherId: string) {
+      if (!lists.has(teacherId)) lists.set(teacherId, (async () => {
+        // A fresh RLS-filtered list overlaps the teacher check and also supplies
+        // current course metadata, avoiding another round-trip for the selection.
+        const [context, rows] = await Promise.all([
+          getTeacher(teacherId), readTeacherCourses(client, teacherId, uncached),
+        ]);
+        if (!context) return [];
+        for (const course of rows) {
+          if (!courses.has(course.id)) courses.set(course.id, Promise.resolve(course));
+        }
+        return rows;
+      })());
+      return lists.get(teacherId)!;
+    },
+    async panel(teacherId: string, courseId: string) {
+      // courses RLS checks the current session and teacher/subject grant.
+      // Verify the parent against a live row, never against a cached list.
+      const course = await getCourse(courseId);
+      if (!course || course.teacher_id !== teacherId) return null;
+      return readCourseContent(client, course, profile.id, read);
     },
     async content(courseId: string) {
       // Only a fresh RLS lookup from THIS reader can authorize cached content.

@@ -13,15 +13,17 @@ export default async function CoursePage({ params, searchParams }: { params: Pro
   const reader = createCourseReader(client, profile, read);
   const course = await reader.course(id);
   if (!course) return <AccessDenied />;
-  const [context, content, sidebar] = await Promise.all([
+  const content = reader.content(id);
+  // Attach a rejection handler immediately; the streamed panel presents errors.
+  void content.catch(() => {});
+  const [context, sidebar] = await Promise.all([
     reader.teacher(course.teacher_id),
-    reader.content(id),
     reader.courses(course.teacher_id).then((courses) => ({
       courses,
       progressByCourse: courseProgressSummaries(client, courses.filter((item) => item.id !== course.id).map((item) => item.id), profile.id).catch(() => null),
     })),
   ]);
-  if (!content || !context) return <AccessDenied />;
+  if (!context) return <AccessDenied />;
   const { courses, progressByCourse } = sidebar;
-  return <CourseView navigationBase={`/courses/${routeId}`} {...context} courses={courses} progressByCourse={progressByCourse} content={content} admin={profile.role === "ADMIN"} />;
+  return <CourseView navigationBase={`/courses/${routeId}`} {...context} courses={courses} initialId={id} progressByCourse={progressByCourse} content={content} admin={profile.role === "ADMIN"} />;
 }

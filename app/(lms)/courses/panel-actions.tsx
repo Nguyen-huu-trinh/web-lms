@@ -11,10 +11,7 @@ export async function loadCoursePanel(teacherId: string, courseId: string) {
   if (!isUuid(teacherId) || !isUuid(courseId)) return { ok: false as const, error: "Khóa học không hợp lệ." };
   try {
     const reader = createCourseReader(client, profile, createLearningReader(profile, sessionId));
-    const [course, context] = await Promise.all([reader.course(courseId), reader.teacher(teacherId)]);
-    if (!course || course.teacher_id !== teacherId) return { ok: false as const, error: "Khóa học không còn khả dụng hoặc bạn chưa được cấp quyền." };
-    if (!context) return { ok: false as const, error: "Bạn chưa được cấp quyền vào khóa học này." };
-    const content = await reader.content(courseId);
+    const content = await reader.panel(teacherId, courseId);
     if (!content) return { ok: false as const, error: "Khóa học không còn khả dụng." };
     return { ok: true as const, panel: <CourseDetail content={content} admin={profile.role === "ADMIN"} />, summary: { count: content.count, total: content.total, percent: content.percent } };
   } catch {
