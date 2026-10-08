@@ -16,26 +16,30 @@ export default async function PricingPage() {
     currency: "VND",
   });
 
-  // Tìm gói có giá cao nhất để gắn huy hiệu duy nhất
+  // Tự động tìm gói nổi bật nhất
   const maxPrice = items.length > 0 ? Math.max(...items.map((i) => i.price)) : 0;
   const featuredItemId = items.find((i) => i.price === maxPrice && maxPrice > 0)?.id;
 
   return (
     <main className={styles.page}>
-      <div className={styles.bgGridPattern} />
-      <div className={styles.ambientGlow} />
+      {/* Hiệu ứng nền họa tiết ánh sáng & hoa văn công nghệ chìm */}
+      <div className={styles.meshCanvas} aria-hidden="true" />
+      <div className={styles.glowAura} aria-hidden="true" />
 
       <header className={styles.heading}>
         <div>
-          <div className={styles.eyebrowContainer}>
-            <span className={styles.pulseDot} />
-            <span className={styles.eyebrow}>BẢNG GIÁ DỊCH VỤ & KHÓA HỌC</span>
+          <div className={styles.eyebrowTag}>
+            <span className={styles.sparkleIcon}>
+              <Icon name="sparkles" />
+            </span>
+            <span className={styles.eyebrow}>BẢNG GIÁ NIÊM YẾT</span>
           </div>
-          <h1 className={styles.title}>Biểu phí niêm yết</h1>
+          <h1 className={styles.title}>Gói học & Dịch vụ</h1>
           <p className={styles.subtitle}>
-            Minh bạch chi phí cho từng chương trình học tập, tài liệu ôn luyện và các gói combo chuyên đề.
+            Biểu phí chính thức cho các khóa luyện thi và tài liệu học tập
           </p>
         </div>
+
         {admin && (
           <div className={styles.adminAction}>
             <RecordControls context={{ entity: "menus" }} />
@@ -50,17 +54,15 @@ export default async function PricingPage() {
               <Icon name="pricing" />
             </div>
             <div>
-              <h2 id="pricing-title">Danh sách hạng mục</h2>
-              <div className={styles.metaRow}>
-                <span className={styles.counterBadge}>{items.length} gói đang mở</span>
-                <span className={styles.dotSeparator}>•</span>
-                <span className={styles.subtext}>Cập nhật thời gian thực</span>
-              </div>
+              <h2 id="pricing-title">Danh sách khóa học</h2>
+              <span className={styles.itemCountBadge}>
+                {items.length} hạng mục hoạt động
+              </span>
             </div>
           </div>
-          <div className={styles.currencyTag}>
-            <span className={styles.currLabel}>Đơn vị</span>
-            <span className={styles.currUnit}>VNĐ</span>
+          <div className={styles.currencyPill}>
+            <span className={styles.pillLabel}>ĐƠN VỊ</span>
+            <span className={styles.pillUnit}>VNĐ</span>
           </div>
         </header>
 
@@ -73,51 +75,50 @@ export default async function PricingPage() {
                 return (
                   <li
                     key={item.id}
-                    className={`${styles.listItem} ${isFeatured ? styles.featuredItem : ""}`}
-                    style={{ "--delay": `${index * 0.06}s` } as React.CSSProperties}
+                    className={`${styles.cardRow} ${isFeatured ? styles.featuredCard : ""}`}
+                    style={{ "--delay": `${index * 0.05}s` } as React.CSSProperties}
                   >
-                    <div className={styles.leftAccentGlow} />
+                    {/* Dải sáng chạy ngang khi di chuột */}
+                    <div className={styles.shimmerEffect} aria-hidden="true" />
 
-                    <div className={styles.itemMain}>
-                      <div className={styles.itemIconBox}>
+                    {/* Khối bên trái: Icon + Tên gói */}
+                    <div className={styles.leftCol}>
+                      <div className={styles.iconEmblem}>
                         <Icon name={isFeatured ? "graduation" : "book"} />
                       </div>
-                      <div className={styles.itemDetails}>
-                        <div className={styles.titleWrapper}>
-                          <h3 className={styles.itemTitle}>{item.name}</h3>
+                      <div className={styles.titleBox}>
+                        <div className={styles.titleWrap}>
+                          <h3 className={styles.itemName}>{item.name}</h3>
                           {isFeatured && (
-                            <span className={styles.popularBadge}>
+                            <span className={styles.topBadge}>
                               <Icon name="sparkles" />
-                              Ưu đãi nổi bật
+                              Khuyên dùng
                             </span>
                           )}
                         </div>
-                        <span className={styles.itemSub}>
-                          Bao gồm hệ thống luyện đề, tài liệu PDF & video bài giảng
-                        </span>
                       </div>
                     </div>
 
-                    <div className={styles.itemPricing}>
-                      <div className={styles.priceColumn}>
-                        <span className={styles.priceTerm}>Trọn gói</span>
-                        <span className={styles.priceAmount}>{currency.format(item.price)}</span>
+                    {/* Khối bên phải: Giá niêm yết + Nút Admin */}
+                    <div className={styles.rightCol}>
+                      <div className={styles.priceContainer}>
+                        <span className={styles.pricePeriod}>TRỌN GÓI</span>
+                        <div className={styles.priceValueWrap}>
+                          <strong className={styles.priceNumber}>
+                            {currency.format(item.price)}
+                          </strong>
+                        </div>
                       </div>
 
-                      <div className={styles.actions}>
-                        {admin && (
-                          <div className={styles.adminControls}>
-                            <RecordControls
-                              iconOnly
-                              context={{ entity: "menus", id: item.id }}
-                              values={{ name: item.name, price: item.price }}
-                            />
-                          </div>
-                        )}
-                        <span className={styles.chevronIcon}>
-                          <Icon name="chevron" />
-                        </span>
-                      </div>
+                      {admin && (
+                        <div className={styles.adminCol}>
+                          <RecordControls
+                            iconOnly
+                            context={{ entity: "menus", id: item.id }}
+                            values={{ name: item.name, price: item.price }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </li>
                 );
@@ -126,14 +127,14 @@ export default async function PricingPage() {
           </div>
         ) : (
           <div className={styles.empty}>
-            <div className={styles.emptyIconContainer}>
+            <div className={styles.emptyIcon}>
               <Icon name="pricing" />
             </div>
-            <h3>Chưa có dữ liệu bảng giá</h3>
+            <h3>Chưa có mục giá nào</h3>
             <p>
               {admin
-                ? "Bấm nút thiết lập để thêm các hạng mục học phí mới vào hệ thống."
-                : "Hệ thống đang đồng bộ biểu phí. Vui lòng quay lại sau."}
+                ? "Bấm nút phía trên để thêm các gói học phí mới."
+                : "Hệ thống sẽ cập nhật danh sách các gói sớm nhất."}
             </p>
           </div>
         )}
