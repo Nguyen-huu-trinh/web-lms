@@ -2,14 +2,23 @@
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export function SessionGuard({ userId, sessionId }: { userId: string; sessionId: string }) {
+export function SessionGuard({ userId, sessionId, trialExpiresAt }: { userId: string; sessionId: string; trialExpiresAt?: string | null }) {
   useEffect(() => {
     const client = createClient();
     let stopped = false;
     let exiting = false;
     let checking = false;
     let checkAgain = false;
+    async function expireTrial() {
+      if (stopped || exiting) return;
+      exiting = true;
+      try {
+        const { data } = await client.auth.getClaims();
+        if (data?.claims.session_id === sessionId) await client.auth.signOut({ scope: "local" });
+      } finally { window.location.replace("/login?error=trial"); }
+    }
     async function verifySession() {
+      if (trialExpiresAt && Date.now() >= Date.parse(trialExpiresAt)) { await expireTrial(); return; }
       const { data, error } = await client.from("active_sessions").select("session_id").eq("user_id", userId).maybeSingle();
       if (stopped || exiting || error) return;
       if (data?.session_id === sessionId) return;
@@ -38,11 +47,12 @@ export function SessionGuard({ userId, sessionId }: { userId: string; sessionId:
     const channel = client.channel(`session:${userId}`).on("postgres_changes", {
       event: "*", schema: "public", table: "active_sessions", filter: `user_id=eq.${userId}`,
     }, () => { void check(); }).subscribe();
+    const expiryTimer = trialExpiresAt ? window.setTimeout(() => { void expireTrial(); }, Math.max(0, Date.parse(trialExpiresAt) - Date.now())) : undefined;
     const timer = window.setInterval(() => { void check(); }, 15000);
     const onFocus = () => { void check(); };
     window.addEventListener("focus", onFocus);
     void check();
-    return () => { stopped = true; window.clearInterval(timer); window.removeEventListener("focus", onFocus); void client.removeChannel(channel); };
-  }, [userId, sessionId]);
+    return () => { stopped = true; window.clearTimeout(expiryTimer); window.clearInterval(timer); window.removeEventListener("focus", onFocus); void client.removeChannel(channel); };
+  }, [userId, sessionId, trialExpiresAt]);
   return null;
 }

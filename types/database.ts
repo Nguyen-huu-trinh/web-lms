@@ -1,6 +1,6 @@
 export type Role = "ADMIN" | "STUDENT";
 type Base = { id: string; created_at: string };
-export type Profile = Base & { email: string; username: string | null; role: Role; must_change_password: boolean; provisioned_by_admin: boolean };
+export type Profile = Base & { trial_expires_at: string | null; email: string; username: string | null; role: Role; must_change_password: boolean; provisioned_by_admin: boolean };
 export type Subject = Base & { order_index: number; name: string; description: string | null };
 export type Teacher = Base & { order_index: number; subject_id: string; name: string; bio: string | null };
 export type Course = Base & { order_index: number; teacher_id: string; title: string; description: string | null };
@@ -40,6 +40,7 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      trial_cleanup_enabled: { Args: Record<string, never>; Returns: boolean };
       session_is_active: { Args: Record<string, never>; Returns: boolean };
       end_session: { Args: Record<string, never>; Returns: undefined };
       find_student_account: { Args: { account_email: string }; Returns: { id: string; profile_id: string | null; role: Role | null; has_password: boolean; auth_exists: boolean }[] };

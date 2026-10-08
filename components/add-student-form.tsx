@@ -16,6 +16,7 @@ export function AddStudentForm(props: Props) {
 function StudentForm({ subjects = [], teachers = [], target, onCancel }: Props & { onCancel: () => void }) {
   const [kind, setKind] = useState<"subject" | "teacher">(target?.kind ?? "subject");
   const [username,setUsername] = useState("");
+  const [trial, setTrial] = useState(false);
   const [query, setQuery] = useState("");
   const [targetIds,setTargetIds] = useState<string[]>([]);
   const [confirmation, setConfirmation] = useState<AddStudentState["confirmation"]>();
@@ -42,12 +43,15 @@ function StudentForm({ subjects = [], teachers = [], target, onCancel }: Props &
     // allowing a resolved form action to reset native checkbox/radio values.
     const form = new FormData();
     form.set("username", username);
+    form.set("trial", String(trial));
     form.set("kind", target?.kind ?? kind);
     for (const id of target ? [target.id] : targetIds) form.append("target_id", id);
     form.set("confirmed_student_id", confirmation?.studentId ?? "");
     startTransition(() => action(form));
   }} className="admin-form">
     <label className="block">Tên đăng nhập học sinh<input required type="text" name="username" minLength={3} maxLength={50} pattern="[a-zA-Z0-9_]{3,50}" autoCapitalize="none" spellCheck={false} autoComplete="off" placeholder="Ví dụ: nguyen_van_an" value={username} onChange={(e) => { setUsername(e.target.value); setConfirmation(undefined); }} disabled={pending} /></label>
+    <button type="button" className="student-trial-toggle" aria-pressed={trial} disabled={pending} onClick={() => { setTrial((value) => !value); setConfirmation(undefined); }}><Icon name="check" /> Tài khoản học thử · 30 phút</button>
+    {trial && <p className="field-hint">Chỉ dành cho tài khoản mới. Tự hết quyền học sau 30 phút kể từ lúc tạo; tài khoản và tiến độ sẽ bị xóa tự động.</p>}
     {target ? <><input type="hidden" name="kind" value={target.kind} /><input type="hidden" name="target_id" value={target.id} /></> : <>
       <fieldset className="access-options"><legend>Cấp quyền theo</legend>
         <label><input type="radio" name="kind" value="subject" checked={kind === "subject"} disabled={pending} onChange={() => { setKind("subject"); setTargetIds([]); setQuery(""); setConfirmation(undefined); }} /> Môn học</label>

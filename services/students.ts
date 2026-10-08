@@ -7,7 +7,7 @@ import { provisionStudent } from "./student-provisioning-core";
 export class ExistingStudentConfirmation extends Error {
   constructor(public studentId: string, public username: string) { super("Cần xác nhận thêm học sinh hiện có."); }
 }
-export async function addStudent(usernameInput: unknown, kind: string, targetIds: string[], confirmedStudentId = "") {
+export async function addStudent(usernameInput: unknown, kind: string, targetIds: string[], confirmedStudentId = "", trial = false) {
   const { client, profile, sessionId } = await requireUser("ADMIN");
   const username = normalizeUsername(usernameInput);
   const ids = [...new Set(targetIds)];
@@ -17,6 +17,10 @@ export async function addStudent(usernameInput: unknown, kind: string, targetIds
   const { data: target, error: targetError } = await client.from(table).select("id").in("id", ids);
   if (targetError || !target || target.length !== ids.length) throw new Error("Môn học/giáo viên không còn tồn tại hoặc không có quyền truy cập.");
   const admin = createAdminClient();
+  if (trial) {
+    const { data: enabled, error } = await admin.rpc("trial_cleanup_enabled");
+    if (error || !enabled) throw new Error("Chưa bật lịch xóa tài khoản học thử. Vui lòng áp dụng migration học thử và bật Cron trước khi tạo.");
+  }
   const { data: existingProfile, error: lookupError } = await admin.from("profiles").select("id,email,role").eq("username", username).maybeSingle();
   if (lookupError) throw new Error("Không thể tra cứu tên đăng nhập.");
   if (existingProfile?.role === "ADMIN") throw new Error("Tên đăng nhập đã được sử dụng bởi quản trị viên.");
@@ -32,10 +36,11 @@ export async function addStudent(usernameInput: unknown, kind: string, targetIds
       return data;
     },
     async confirmExisting(account) {
+      if (trial) throw new Error("Tên đăng nhập đã tồn tại. Hãy dùng tên khác để tạo tài khoản học thử; tài khoản cũ không bị thay đổi.");
       if (confirmedStudentId !== account.id) throw new ExistingStudentConfirmation(account.id, username);
     },
     async createAccount(accountEmail, password) {
-      const { data, error } = await admin.auth.admin.createUser({ email: accountEmail, password, email_confirm: true });
+      const { data, error } = await admin.auth.admin.createUser({ email: accountEmail, password, email_confirm: true, app_metadata: { lms_trial: trial } });
       if (error || !data.user) throw new Error("Auth account creation failed");
       return data.user.id;
     },
@@ -47,5 +52,5 @@ export async function addStudent(usernameInput: unknown, kind: string, targetIds
       if (error) throw error;
     },
   });
-  return { ...result, targetCount: ids.length };
+  return { ...result, targetCount: ids.length, trial };
 }

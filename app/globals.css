@@ -224,3 +224,8 @@ progress::-moz-progress-bar { background: linear-gradient(90deg,#2563eb,#6366f1)
 .student-target-list { max-height: min(240px, 32dvh); overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #c1d0e4 transparent; }
 .student-target-list span { min-width: 0; overflow-wrap: anywhere; }
 .student-target-empty { padding: 12px 8px; color: #64748b; font-size: 13px; }
+
+.student-trial-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: #f8fafc; color: #475569; font-size: 14px; }
+.student-trial-toggle[aria-pressed=true] { background: #eff6ff; color: #1d4f96; border-color: #2563b8; }
+.student-trial-toggle .icon { width: 18px; height: 18px; opacity: .25; }
+.student-trial-toggle[aria-pressed=true] .icon { opacity: 1; }

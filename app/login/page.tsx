@@ -2,6 +2,7 @@ import styles from "./login.module.css";
 import { LoginForms } from "@/components/login-forms";
 import { Icon } from "@/components/ui/icon";
 const errors: Record<string, string> = {
+  trial: "Tài khoản học thử đã hết hạn 30 phút. Vui lòng liên hệ Admin để được cấp tài khoản mới.",
   credentials: "Thông tin đăng nhập không hợp lệ hoặc tài khoản chưa được Admin cấp.",
   session: "Tài khoản đã đăng nhập ở thiết bị khác. Vui lòng đăng nhập lại.",
 };

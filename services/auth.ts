@@ -13,8 +13,9 @@ export async function activateFreshSession(client: Awaited<ReturnType<typeof cre
   const admin = createAdminClient();
   const { data: userData, error: userError } = await client.auth.getUser();
   if (userError || !userData.user || userData.user.id !== data.claims.sub) throw new Error("Invalid user");
-  const { data: profile, error: readError } = await admin.from("profiles").select("role,must_change_password,provisioned_by_admin").eq("id", userData.user.id).single();
+  const { data: profile, error: readError } = await admin.from("profiles").select("role,must_change_password,provisioned_by_admin,trial_expires_at").eq("id", userData.user.id).single();
   if (readError || profile?.role !== role) throw new Error("Wrong login role");
+  if (profile.trial_expires_at && Date.parse(profile.trial_expires_at) <= Date.now()) throw new Error("Tài khoản học thử đã hết hạn.");
   if (role === "STUDENT" && !profile.provisioned_by_admin) throw new Error("Admin provisioning required");
   const { error: sessionError } = await admin.from("active_sessions").upsert({
     user_id: userData.user.id, session_id: data.claims.session_id,
