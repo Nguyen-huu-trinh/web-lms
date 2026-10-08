@@ -45,6 +45,10 @@ export const teacherContext = cache(async (client: Client, teacherId: string, pr
 export async function teacherCourses(client: Client, teacherId: string, read: DataReader = uncached, profile?: Profile) {
   // Never let a cache hit bypass current membership checks.
   if (read !== uncached && (!profile || !await teacherContext(client, teacherId, profile))) return [];
+  return readTeacherCourses(client, teacherId, read);
+}
+
+function readTeacherCourses(client: Client, teacherId: string, read: DataReader) {
   return read("teacher:courses:" + teacherId, () => allRows((a,b) => client.from("courses").select("*").eq("teacher_id", teacherId).order("order_index").order("created_at").order("id").range(a,b)));
 }
 
@@ -63,7 +67,11 @@ export const findCourse = cache(async (client: Client, courseId: string) => {
 export async function courseContent(client: Client, courseId: string, studentId: string, knownCourse?: Course, read: DataReader = uncached) {
   // A cached teacher list is not proof of access: recheck the course through RLS.
   const course = read === uncached ? knownCourse ?? await findCourse(client, courseId) : await findCourse(client, courseId);
-  if (!course) return null;
+  return course ? readCourseContent(client, course, studentId, read) : null;
+}
+
+async function readCourseContent(client: Client, course: Course, studentId: string, read: DataReader) {
+  const courseId = course.id;
   const { chapters, lessons } = await read("course:outline:" + courseId, async () => {
     const chapters = await allRows((a,b) => client.from("chapters").select("*").eq("course_id", courseId).order("order_index").order("id").range(a,b));
     const lessons = await byIds(chapters.map((c) => c.id), (ids,a,b) => client.from("lessons").select("*").in("chapter_id", ids).order("order_index").order("id").range(a,b));
@@ -90,6 +98,34 @@ export async function courseProgressSummaries(client: Client, courseIds: string[
     const ids = courseLessons.get(id) ?? [];
     return [id, progressSummary(ids, ids.filter((lessonId) => completed.has(lessonId)))];
   }));
+}
+
+// Create once after requireUser, inside a page or action. These promises never
+// survive the request; even Server Actions reuse fresh authorization results.
+export function createCourseReader(client: Client, profile: Profile, read: DataReader = uncached) {
+  const courses = new Map<string, ReturnType<typeof findCourse>>();
+  const teachers = new Map<string, ReturnType<typeof teacherContext>>();
+  const getCourse = (id: string) => {
+    if (!courses.has(id)) courses.set(id, findCourse(client, id));
+    return courses.get(id)!;
+  };
+  const getTeacher = (id: string) => {
+    if (!teachers.has(id)) teachers.set(id, teacherContext(client, id, profile));
+    return teachers.get(id)!;
+  };
+  return {
+    course: getCourse,
+    teacher: getTeacher,
+    async courses(teacherId: string) {
+      if (!await getTeacher(teacherId)) return [];
+      return readTeacherCourses(client, teacherId, read);
+    },
+    async content(courseId: string) {
+      // Only a fresh RLS lookup from THIS reader can authorize cached content.
+      const course = await getCourse(courseId);
+      return course ? readCourseContent(client, course, profile.id, read) : null;
+    },
+  };
 }
 
 export type CourseContent = NonNullable<Awaited<ReturnType<typeof courseContent>>>;

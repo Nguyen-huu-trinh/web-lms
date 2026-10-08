@@ -93,3 +93,15 @@ Typecheck/lint và 47 tests hiện có đạt; chưa xác minh tương tác trê
 - Hoàn thành bài lưu user_progress trước, sau đó revalidatePath cho /courses và /lessons: cập nhật tiến độ, trạng thái hoàn thành và bài học tiếp theo mà không chờ TTL. Progress vẫn đọc ngoài Data Cache.
 - Admin chỉnh sửa vẫn updateTag/revalidatePath; không phải chờ 15 phút. Thay đổi trực tiếp ngoài ứng dụng có thể xuất hiện chậm hơn.
 - Theo yêu cầu người dùng, lần chỉnh TTL này không chạy test, lint, typecheck, build hoặc kiểm thử trình duyệt; các kết quả ở phần trước thuộc các lần thay đổi trước.
+
+
+## Giảm thời gian chờ mở/chuyển khóa — 2026-10-08
+
+- createCourseReader được tạo riêng trong từng page/Server Action sau requireUser. Lookup khóa qua RLS và teacher context được dùng lại bằng promise trong request đó, kể cả ngoài React render. Không dùng chung instance giữa request, tài khoản hoặc phiên; cached course list không được dùng làm bằng chứng quyền đọc nội dung.
+- loadCoursePanel đọc khóa và teacher context song song, rồi sử dụng lại lookup đã xác thực để lấy outline/tiến độ. Trang /courses/[id] tải nội dung song song với context/danh sách khóa sau khi xác thực course qua RLS.
+- Hai trang khóa học khởi động truy vấn tiến độ các khóa còn lại nhưng không await kết quả trước khi trả CourseView. Promise được đọc ở từng phần tiến độ bằng React use và Suspense; danh sách và nội dung chính không bị chặn bởi tiến độ phụ.
+- Tiến độ khóa đang mở lấy ngay từ content. Khi chuyển khóa và tải panel xong, summary của panel được ưu tiên hơn snapshot tiến độ nền. Lỗi truy vấn tiến độ phụ hiển thị “Chưa tải được tiến độ”, không giả lập 0% và không làm mất nội dung chính.
+- Không thay đổi TTL, reset cache panel, cơ chế prefetch, schema hay chính sách RLS. Không bổ sung migration.
+- Kiểm tra: 54/54 tests đạt, lint và Next typegen + TypeScript đạt. Test streaming dùng React server renderer với navigation/action được mock; xác nhận shell xuất hiện trước tiến độ và lỗi tiến độ không làm hỏng shell. Test repository xác nhận dùng lại lookup trong request và kiểm tra quyền mới sau thu hồi ở request tiếp theo.
+- Chưa đo thời gian điều hướng production hoặc kiểm thử tương tác trình duyệt đăng nhập; kết quả trên không phải cam kết số mili giây cải thiện.
+- Production build chưa hoàn tất: next/font không kết nối được Google Fonts để tải Geist và Geist Mono. Chưa triển khai thay đổi lên website.

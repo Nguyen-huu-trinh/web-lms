@@ -13,7 +13,7 @@ registerHooks({ resolve(specifier, context, next) {
   }
   return next(specifier, context);
 } });
-const { courseContent, courseProgressSummaries, lessonContent, teacherContext, teacherCourses, catalog, listMenus } = await import(repositoryUrl);
+const { createCourseReader, courseContent, courseProgressSummaries, lessonContent, teacherContext, teacherCourses, catalog, listMenus } = await import(repositoryUrl);
 function fixture(tables, failTable) {
   const calls = [];
   const client = createClient("https://example.test", "test-key", { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: async (input, init) => {
@@ -143,4 +143,36 @@ test("a warm lesson cache cannot bypass a fresh RLS denial", async () => {
   assert.equal(calls.filter((table) => table === "materials").length, 1);
   data.lessons = [];
   assert.equal(await lessonContent(client, "lesson", profile, read), null);
+});
+
+
+test("request reader reuses course and teacher checks even outside React rendering", async () => {
+  const { client, calls } = fixture(tables);
+  const reader = createCourseReader(client, { id: "student", role: "STUDENT" }, memoryReader());
+  const [metadata, context] = await Promise.all([reader.course("course"), reader.teacher("teacher")]);
+  assert.equal(metadata.id, "course");
+  assert.equal(context.teacher.id, "teacher");
+  const [content, courses] = await Promise.all([reader.content("course"), reader.courses("teacher")]);
+  assert.equal(content.percent, 100);
+  assert.equal(courses.length, 1);
+  // One course lookup plus one list query; no extra lookup inside content().
+  assert.equal(calls.filter((table) => table === "courses").length, 2);
+  assert.equal(calls.filter((table) => table === "teachers").length, 1);
+  assert.equal(calls.filter((table) => table === "student_subject_access").length, 1);
+});
+
+test("new request reader rechecks revoked access even with warm data cache", async () => {
+  const data = structuredClone(tables);
+  const { client } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  const first = createCourseReader(client, profile, read);
+  assert.equal((await first.content("course")).percent, 100);
+  assert.equal((await first.courses("teacher")).length, 1);
+  data.courses = [];
+  data.student_subject_access = [];
+  const next = createCourseReader(client, profile, read);
+  assert.equal(await next.content("course"), null);
+  assert.equal(await next.teacher("teacher"), null);
+  assert.deepEqual(await next.courses("teacher"), []);
 });
