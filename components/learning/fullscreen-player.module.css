@@ -1,0 +1,13 @@
+.player { position: relative; isolation: isolate; display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0; background: #000; }
+/* Above the existing z-index: 2 shield; only the button accepts clicks. */
+.toolbar { position: absolute; z-index: 3; right: 8px; bottom: 8px; left: 8px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; color: #fff; pointer-events: none; }
+.toggle { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 40px; height: 40px; padding: 8px; border: 0; border-radius: 4px; background: #0009; color: #fff; cursor: pointer; pointer-events: auto; }
+.toggle:hover { background: #000c; }
+.toggle:focus-visible { outline: 2px solid #8bbcff; outline-offset: 3px; }
+.toggle:disabled { cursor: wait; opacity: .65; }
+.error { max-width: min(360px, calc(100% - 52px)); padding: 8px 12px; border-radius: 4px; background: #111e; font-size: 13px; color: #fda4af; }
+.player:fullscreen, .player[data-expanded=true] { width: 100vw; height: 100dvh; min-height: 0; max-width: none; background: #000; overflow: hidden; color-scheme: dark; }
+.player[data-expanded=true] { position: fixed; inset: 0; z-index: 1000; }
+.player:fullscreen::backdrop { background: #000; }
+.player:fullscreen :global(.video-frame), .player[data-expanded=true] :global(.video-frame) { flex: 1; min-height: 0; aspect-ratio: auto; }
+.player:fullscreen :global(.video-frame iframe), .player[data-expanded=true] :global(.video-frame iframe) { min-height: 0; height: 100%; }

@@ -9,6 +9,7 @@ import { completeLesson } from "@/app/(lms)/lessons/[id]/actions";
 import { materialLink, videoEmbed } from "@/lib/learning";
 import { ChapterList } from "./chapter-list";
 import { EmptyState } from "./shared";
+import { FullscreenPlayer } from "./fullscreen-player";
 type MaterialRow = Database["public"]["Tables"]["materials"]["Row"];
 export function LessonWorkspace({ lesson, materials, content, student, materialTools, materialActions }: { lesson: Lesson; materials: MaterialRow[]; content: CourseContent; student: boolean; materialTools?: React.ReactNode; materialActions?: Record<string, React.ReactNode> }) {
   const [tab, setTab] = useState<"outline" | "materials">("materials");
@@ -30,7 +31,7 @@ export function LessonWorkspace({ lesson, materials, content, student, materialT
     <div className={styles.body}><section className={styles.stage}>
       <div className="surface video-section">{video ? <>
         {videos.length > 1 && <label className="video-selection">Video bài học<select value={video?.id} onChange={(e) => setVideoId(e.target.value)}>{videos.map((v) => <option key={v.id} value={v.id}>{v.title}</option>)}</select></label>}
-        {embed ? <div className="video-frame"><iframe key={embed} src={playerSrc ?? undefined} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen={video.provider !== "youtube"} referrerPolicy="strict-origin-when-cross-origin" />{video.provider === "youtube" && <div className={styles.playerBottomShield} aria-hidden="true" onContextMenu={(event) => event.preventDefault()} />}</div> : <EmptyState title="Video này chưa hỗ trợ phát trực tiếp." />}
+        {embed ? <FullscreenPlayer><div className="video-frame"><iframe key={embed} src={playerSrc ?? undefined} title={video.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen={video.provider !== "youtube"} referrerPolicy="strict-origin-when-cross-origin" />{video.provider === "youtube" && <div className={styles.playerBottomShield} aria-hidden="true" onContextMenu={(event) => event.preventDefault()} />}</div></FullscreenPlayer> : <EmptyState title="Video này chưa hỗ trợ phát trực tiếp." />}
       </> : <EmptyState title="Bài học này chưa có video." description="Bạn có thể xem các tài liệu khác trong tab Tài liệu." />}</div>
 </section>
     <aside className="surface lesson-panel"><div className="panel-tabs" role="tablist" aria-label="Nội dung bài học">{(["outline","materials"] as const).map((value,index) => <button key={value} ref={(el) => { tabRefs.current[index]=el; }} role="tab" id={`tab-${value}`} aria-controls={`panel-${value}`} aria-selected={tab===value} tabIndex={tab===value ? 0 : -1} onClick={() => setTab(value)} onKeyDown={(e) => { if (["ArrowLeft","ArrowRight","Home","End"].includes(e.key)) { e.preventDefault(); const next = e.key === "Home" ? 0 : e.key === "End" ? 1 : 1-index; setTab(next ? "materials" : "outline"); tabRefs.current[next]?.focus(); } }}><Icon name={value === "outline" ? "layers" : "file"} />{value === "outline" ? "Mục lục" : "Tài liệu"}{value === "materials" && <span>{materials.length}</span>}</button>)}</div>
