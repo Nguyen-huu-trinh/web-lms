@@ -1,21 +1,14 @@
-export const subjectGrades = [
-  { value: "2k9", label: "2k9" },
-  { value: "2k8", label: "2k8" },
-  { value: "student", label: "Sinh viên" },
-] as const;
-export type SubjectGrade = typeof subjectGrades[number]["value"];
-export function isSubjectGrade(value: unknown): value is SubjectGrade {
-  return subjectGrades.some((grade) => grade.value === value);
-}
-export function selectedSubjectGrade(value: unknown): SubjectGrade {
-  return isSubjectGrade(value) ? value : "2k9";
+export type SubjectGrade = string;
+export type GradeOption = { code: string; name: string };
+export function selectedSubjectGrade(value: unknown, grades: GradeOption[]): string {
+  return grades.find((grade) => grade.code === value)?.code ?? grades[0]?.code ?? "";
 }
 export const entityNames = {
   subjects: "môn học", teachers: "giáo viên", courses: "khóa học",
   chapters: "chương", lessons: "bài học", materials: "tài liệu", menus: "mục giá",
 } as const;
 export type Entity = keyof typeof entityNames;
-export type MutationContext = { entity: Entity; id?: string; parentId?: string };
+export type MutationContext = { entity: Entity; id?: string; parentId?: string; gradeCode?: string };
 export type MutationResult = { error: string; success: string; redirectTo?: string };
 export class InputError extends Error {}
 export function validId(value: unknown): value is string {
@@ -45,9 +38,8 @@ export function parseRecord(entity: Entity, form: FormData) {
     ? { order_index: order(form) } : {};
   switch (entity) {
     case "subjects": {
-      const grade = form.has("grade") ? text(form, "grade", false) : undefined;
-      if (grade !== undefined && !isSubjectGrade(grade)) throw new InputError("Vui lòng chọn khối 2k9, 2k8 hoặc Sinh viên.");
-      return { entity, values: { ...catalogOrder, ...(isSubjectGrade(grade) ? { grade } : {}), name: text(form,"name"), description: text(form,"description",false,5000) || null } };
+      const grade = text(form, "grade");
+      return { entity, values: { ...catalogOrder, grade, name: text(form,"name"), description: text(form,"description",false,5000) || null } };
     }
     case "teachers": return { entity, values: { ...catalogOrder, name: text(form,"name"), bio: text(form,"bio",false,5000) || null } };
     case "courses": return { entity, values: { ...catalogOrder, title: text(form,"title"), description: text(form,"description",false,5000) || null } };
@@ -67,4 +59,8 @@ export function parseRecord(entity: Entity, form: FormData) {
       return { entity, values: { ...catalogOrder, name: text(form,"name"), price: Number(raw) } };
     }
   }
+}
+
+export function parseGrade(form: FormData) {
+  return { name: text(form, "name"), ...(form.has("order_index") ? { order_index: order(form) } : {}) };
 }

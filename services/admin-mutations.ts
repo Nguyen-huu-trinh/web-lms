@@ -26,8 +26,16 @@ async function checkContext(context: MutationContext) {
   return client;
 }
 export async function mutateRecord(context: MutationContext, form: FormData) {
-  await checkContext(context);
+  const client = await checkContext(context);
+  if (context.entity === "subjects" && !context.id && context.gradeCode) {
+    // The bound server context chooses the grade, never a submitted selector.
+    form.set("grade", context.gradeCode);
+  }
   const record = parseRecord(context.entity,form);
+  if (record.entity === "subjects") {
+    const { data, error } = await client.from("grades").select("code").eq("code", record.values.grade).maybeSingle();
+    if (error || !data) throw new InputError("Khối không tồn tại. Vui lòng tạo khối trước rồi chọn lại.");
+  }
   // Only explicitly parsed fields reach the DB; IDs, roles, timestamps and parent
   // reassignment sent inside FormData are ignored. Parent comes from page context.
   if (context.id) {

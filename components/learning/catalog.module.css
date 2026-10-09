@@ -365,16 +365,19 @@
 
 .catalog :global(.list-sidebar) .gradeTabs {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.4fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 100px), 1fr));
   gap: 4px;
   margin: 10px 0;
   padding: 4px;
   border-radius: 14px;
   background: #eff4fb;
-  overflow: visible;
+  max-height: 240px;
+  overflow: auto;
 }
 
 .gradeTabs a {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -402,3 +405,17 @@
 .courseDetailRegion { position: relative; min-width: 0; }
 .courseLoadStatus { position: absolute; z-index: 2; right: 12px; top: 8px; max-width: calc(100% - 24px); margin: 0; padding: 5px 10px; border: 1px solid #bfdbfe; border-radius: 999px; background: #eff6ff; color: #1d4f96; font-size: 13px; box-shadow: 0 2px 8px #0f172a08; }
 .courseLoadError { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; margin-bottom: 8px; border: 1px solid #fecaca; border-radius: 12px; background: #fff7f7; color: #991b1b; }
+
+/* Course and lesson navigation feedback. */
+.courseCard, .courseName > :global(.icon:last-child) { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+@media (hover: hover) and (pointer: fine) {
+  .courseCard:hover { transform: translateY(-2px); border-color: #a7c5fc; box-shadow: 0 6px 16px #23467912; }
+  .courseCard[data-active="true"]:hover { border-color: #73a6ee; box-shadow: inset 3px 0 #2563b8, 0 6px 16px #23467912; }
+  .courseLink:hover .courseName > :global(.icon:last-child) { transform: translateX(3px); }
+  .catalog :global(.student-curriculum .lesson-link:hover) { background: #eff6ff; border-color: #c4d9ff; color: #2456dc; }
+}
+.courseCard:focus-within { border-color: #73a6ee; }
+@media (prefers-reduced-motion: reduce) {
+  .courseCard, .courseName > :global(.icon:last-child) { transition: none; }
+  .courseCard:hover, .courseLink:hover .courseName > :global(.icon:last-child) { transform: none; }
+}

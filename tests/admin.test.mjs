@@ -1,20 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRecord, validateContext, InputError } from '../lib/admin-validation.ts';
+import { parseRecord, parseGrade, selectedSubjectGrade, validateContext, InputError } from '../lib/admin-validation.ts';
 const form = (values) => { const f = new FormData(); for (const [k,v] of Object.entries(values)) f.set(k,String(v)); return f; };
-test('subject grade accepts the three options and rejects invalid input', () => {
-  for (const grade of ['2k9', '2k8', 'student']) {
+test('subject grade accepts custom codes and requires explicit selection', () => {
+  for (const grade of ['2k9', '2k8', 'student', 'custom-grade', 'Lớp 12']) {
     assert.equal(parseRecord('subjects', form({name:'Toán', grade})).values.grade, grade);
   }
-  for (const grade of ['', '2k7', 'Sinh viên', 'ADMIN']) {
+  for (const grade of ['', '   ', 'x'.repeat(201)]) {
     assert.throws(() => parseRecord('subjects', form({name:'Toán', grade})), InputError);
   }
-  // Older forms must preserve an existing grade; SQL supplies the insert default.
-  assert.equal(Object.hasOwn(parseRecord('subjects', form({name:'Toán'})).values, 'grade'), false);
+  assert.throws(() => parseRecord('subjects', form({name:'Toán'})), InputError);
 });
 test('CRUD whitelist trims names and ignores role, IDs and parent reassignment', () => {
   for (const entity of ['subjects','teachers','menus']) {
-    const parsed = parseRecord(entity,form({name:'  Test  ',price:0,role:'ADMIN',id:'spoof',subject_id:'spoof'}));
+    const parsed = parseRecord(entity,form({name:'  Test  ',grade:'custom-grade',price:0,role:'ADMIN',id:'spoof',subject_id:'spoof'}));
     assert.equal(parsed.values.name,'Test');
     for (const key of ['role','id','subject_id']) assert.equal(Object.hasOwn(parsed.values,key),false);
     assert.throws(() => parseRecord(entity,form({name:'  ',price:0})),InputError);
@@ -39,4 +38,23 @@ test('mutation context rejects unknown entities and malformed IDs', () => {
   for (const context of [null,{}, {entity:'profiles'}, {entity:'__proto__'}, {entity:'subjects',id:'bad'}, {entity:'courses'}]) assert.throws(() => validateContext(context),InputError);
   validateContext({entity:'subjects'});
   validateContext({entity:'courses',parentId:'00000000-0000-4000-8000-000000000001'});
+});
+
+test('custom grade names are trimmed and required', () => {
+  assert.deepEqual(parseGrade(form({name:'  Ôn thi 2027  ', role:'ADMIN'})), {name:'Ôn thi 2027'});
+  for (const name of ['', '  ', 'x'.repeat(201)]) assert.throws(() => parseGrade(form({name})), InputError);
+});
+test('grade selection follows the database including empty and stale catalogs', () => {
+  const grades = [{code:'new',name:'Lớp mới'}, {code:'another',name:'Khối khác'}];
+  assert.equal(selectedSubjectGrade('another', grades), 'another');
+  assert.equal(selectedSubjectGrade('2k9', grades), 'new');
+  assert.equal(selectedSubjectGrade(undefined, []), '');
+  assert.equal(selectedSubjectGrade(undefined, grades), 'new');
+});
+
+test('grade order accepts nonnegative integers and rejects invalid numbers', () => {
+  assert.equal(parseGrade(form({name:'Grade',order_index:3})).order_index, 3);
+  for (const order_index of ['', '-1', '1.5', 'NaN', '2147483648']) {
+    assert.throws(() => parseGrade(form({name:'Grade',order_index})), InputError);
+  }
 });

@@ -9,7 +9,7 @@ const errors: Record<string, string> = {
 export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY);
-  return <main className={styles.page}><section className={`auth-card ${styles.card}`} aria-labelledby="login-title"><div className="auth-card-heading"><span className="auth-symbol"><Icon name="book" /></span><h1 id="login-title">Đăng nhập LMS</h1></div>
+  return <main className={styles.page}><section className={`auth-card ${styles.card}`} aria-labelledby="login-title"><div className="auth-card-heading"><span className="auth-symbol"><Icon name="book" /></span><h1 id="login-title">Đăng nhập KhoBai</h1></div>
       {!configured && <p className="form-error" role="alert">Chưa cấu hình Supabase. Điền các biến trong .env.example theo README.md.</p>}
       {error && <p className="form-error" role="alert">{errors[error] ?? "Không thể đăng nhập."}</p>}
       <LoginForms configured={configured} />

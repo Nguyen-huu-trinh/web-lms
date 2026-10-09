@@ -1,11 +1,11 @@
 ﻿import {
-  ArrowRight, BookOpen, Check, ChevronRight, CircleAlert, FileText,
+  LibraryBig, Star, Plus, UserPlus, Users, ArrowRight, BookOpen, Check, ChevronRight, CircleAlert, FileText,
   GraduationCap, Layers, LayoutGrid, LockKeyhole, LogOut, Play,
   Search, Tags, Pencil, Trash2, RotateCcw, ShieldCheck, Sparkles, Utensils, X,
 } from "lucide-react";
 
 const icons = {
-  book: BookOpen, grid: LayoutGrid, menu: Utensils, arrow: ArrowRight,
+  library: LibraryBig, star: Star, plus: Plus, userPlus: UserPlus, users: Users, book: BookOpen, grid: LayoutGrid, menu: Utensils, arrow: ArrowRight,
   chevron: ChevronRight, check: Check, play: Play, file: FileText,
   lock: LockKeyhole, logout: LogOut, close: X, layers: Layers,
   alert: CircleAlert, retry: RotateCcw, shield: ShieldCheck,

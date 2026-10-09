@@ -44,6 +44,29 @@ test("LMS migration and security boundaries", async (t) => {
     await db.exec(await readFile(new URL("../supabase/migrations/202610060002_password_auth.sql", import.meta.url), "utf8"));
 
     await db.exec(await readFile(new URL("../supabase/migrations/202610090001_subject_grade.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/migrations/202610100001_grades.sql", import.meta.url), "utf8"));
+    await t.test("grades lookup enforces foreign keys and catalog permissions", async () => {
+      await login(admin);
+      assert.equal(await scalar("select count(*)::int from grades"), 3);
+      await assert.rejects(query("delete from grades where code='2k9'"), { code: "23001" });
+      await query("insert into grades(code,name) values ('test','Test grade')");
+      const row = (await query("insert into subjects(name,grade) values ('Lookup test','test') returning id")).rows[0];
+      await assert.rejects(query("update subjects set grade='missing' where id=$1", [row.id]), { code: "23503" });
+      await assert.rejects(query("update grades set code='renamed' where code='test'"), { code: "23001" });
+      await query("delete from subjects where id=$1", [row.id]);
+      await query("delete from grades where code='test'");
+      await db.exec("reset role");
+      await query("update profiles set provisioned_by_admin=true, must_change_password=false where id=$1", [student]);
+      await login(student);
+      assert.equal(await scalar("select count(*)::int from grades"), 3);
+      await assert.rejects(query("insert into grades(code,name) values ('blocked','Blocked')"));
+      assert.equal((await query("delete from grades returning code")).rows.length, 0);
+      assert.equal((await query("update grades set name='Blocked' returning code")).rows.length, 0);
+      await db.exec("reset role; set role anon");
+      await assert.rejects(query("select * from grades"));
+      await db.exec("reset role");
+      await query("update profiles set must_change_password=true where id=$1", [student]);
+    });
     await t.test("subject grade backfills existing rows, defaults new rows and enforces options", async () => {
       assert.equal((await query("select grade from subjects where id=$1", [subject])).rows[0].grade, "2k9");
       await db.exec("begin");
@@ -56,6 +79,33 @@ test("LMS migration and security boundaries", async (t) => {
       for (const grade of ["2k7", "", null]) {
         await assert.rejects(query("update subjects set grade=$1 where id=$2", [grade, subject]));
       }
+    });
+
+    await db.exec(await readFile(new URL("../supabase/migrations/202610100002_custom_grades.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/migrations/202610100003_grade_order.sql", import.meta.url), "utf8"));
+    await t.test("grade ordering defaults to zero and rejects negative values", async () => {
+      assert.equal(await scalar("select count(*)::int from grades where order_index=0"), 3);
+      await query("update grades set order_index=10 where code='2k8'");
+      await query("update grades set order_index=20 where code='student'");
+      assert.equal((await query("select code from grades order by order_index,name,code limit 1")).rows[0].code, '2k9');
+      await assert.rejects(query("update grades set order_index=-1 where code='2k9'"), {code:'23514'});
+      const row = (await query("insert into grades(name) values ('Default order') returning code,order_index")).rows[0];
+      assert.equal(row.order_index, 0);
+      await query("delete from grades where code=$1", [row.code]);
+      await query("update grades set order_index=0");
+    });
+    await t.test("custom grades must exist before a subject can be created", async () => {
+      await login(admin);
+      await assert.rejects(query("insert into subjects(name) values ('No grade')"), { code: "23502" });
+      await assert.rejects(query("insert into subjects(name,grade) values ('No parent','not-created')"), { code: "23503" });
+      await assert.rejects(query("insert into grades(name) values ('   ')"), { code: "23514" });
+      const grade = (await query("insert into grades(name) values ('Ôn thi 2027') returning code")).rows[0].code;
+      const row = (await query("insert into subjects(name,grade) values ('New subject',$1) returning id", [grade])).rows[0];
+      assert.equal((await query("select g.name from grades g join subjects s on s.grade=g.code where s.id=$1", [row.id])).rows[0].name, 'Ôn thi 2027');
+      await assert.rejects(query("delete from grades where code=$1", [grade]), { code: "23001" });
+      await query("delete from subjects where id=$1", [row.id]);
+      await query("delete from grades where code=$1", [grade]);
+      await db.exec("reset role");
     });
 
     await db.exec(await readFile(new URL("../supabase/migrations/202610070001_student_usernames.sql", import.meta.url), "utf8"));
@@ -195,7 +245,7 @@ test("LMS migration and security boundaries", async (t) => {
     await t.test("combined grants span subjects without opening an ungranted sibling", async () => {
       await login(admin);
       const second=uid(21),ta=uid(32),tb=uid(33);
-      await query("insert into subjects(id,name) values ($1,'Physics')",[second]);
+      await query("insert into subjects(id,name,grade) values ($1,'Physics','2k9')",[second]);
       await query("insert into teachers(id,subject_id,name) values ($1,$3,'PA'),($2,$3,'PB')",[ta,tb,second]);
       await query("insert into courses(teacher_id,title) values ($1,'Physics A'),($2,'Physics B')",[ta,tb]);
       await query("insert into student_subject_access(student_id,subject_id) values ($1,$2)",[student,subject]);
@@ -234,7 +284,7 @@ test("LMS migration and security boundaries", async (t) => {
       await query("insert into active_sessions(user_id,session_id) values ($1,$2)",[student,newSid]);
       await login(admin);
       const specs = [
-        ['subjects',{name:'Temporary'}],
+        ['subjects',{name:'Temporary',grade:'2k9'}],
         ['teachers',{name:'Temporary',subject_id:subject}],
         ['courses',{title:'Temporary',teacher_id:teacherA}],
         ['chapters',{title:'Temporary',course_id:courseA,order_index:0}],

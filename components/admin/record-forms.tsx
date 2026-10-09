@@ -1,14 +1,15 @@
 "use client";
 import { useActionState, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Dialog } from "./dialog";
 import { useToast } from "@/components/ui/toast-provider";
-import { entityNames, subjectGrades, type MutationContext, type MutationResult } from "@/lib/admin-validation";
+import { entityNames, selectedSubjectGrade, type GradeOption, type MutationContext, type MutationResult } from "@/lib/admin-validation";
 type Action = (state: MutationResult, form: FormData) => Promise<MutationResult>;
-export type Props = { iconOnly?: boolean; context: MutationContext; values: Record<string,string | number | null>; save: Action; remove: Action };
+export type Props = { grades?: GradeOption[]; iconOnly?: boolean; context: MutationContext; values: Record<string,string | number | null>; save: Action; remove: Action };
 const initial: MutationResult = { error:"",success:"" };
-export function EditForm({ context, values, save, close }: Props & { close: () => void }) {
-  const [fields,setFields] = useState<Record<string,string>>(() => ({ order_index:"0",type:"pdf",provider:"drive",...Object.fromEntries(Object.entries(values).map(([k,v]) => [k,String(v ?? "")])) }));
+export function EditForm({ context, values, save, close, grades = [] }: Props & { close: () => void }) {
+  const params = useSearchParams();
+  const [fields,setFields] = useState<Record<string,string>>(() => ({ order_index:"0",type:"pdf",provider:"drive",...Object.fromEntries(Object.entries(values).map(([k,v]) => [k,String(v ?? "")])), ...(context.entity === "subjects" && !context.id ? { grade: context.gradeCode ?? selectedSubjectGrade(params.get("grade"), grades) } : {}) }));
   const notify = useToast();
   const [state,action,pending] = useActionState(async (previous: MutationResult, form: FormData) => {
     const result = await save(previous, form);
@@ -23,7 +24,7 @@ export function EditForm({ context, values, save, close }: Props & { close: () =
   const input = (name: string,label: string,type = "text",required = true) => <label>{label}<input placeholder={name === "url" ? "https://…" : type === "number" ? "0" : `Nhập ${label.toLowerCase()}`} name={name} type={type} required={required} value={fields[name] ?? ""} onChange={(e) => set(name,e.target.value)} maxLength={name === "url" ? 2048 : 200} min={type === "number" ? 0 : undefined} max={name === "order_index" ? 2147483647 : name === "price" ? 9999999999.99 : undefined} step={name === "price" ? "0.01" : type === "number" ? "1" : undefined} /></label>;
   return <Dialog title={`${context.id ? "Sửa" : "Thêm"} ${entityNames[kind]}`} onClose={close} busy={pending}><form action={action} className="admin-form"><fieldset disabled={pending}>
     {input(["subjects","teachers","menus"].includes(kind) ? "name" : "title",kind === "menus" ? "Tên hạng mục" : kind === "teachers" ? "Tên giáo viên" : kind === "subjects" ? "Tên môn học" : "Tiêu đề")}
-    {kind === "subjects" && <label>Khối<select name="grade" required value={fields.grade || "2k9"} onChange={(e) => set("grade", e.target.value)}>{subjectGrades.map((grade) => <option key={grade.value} value={grade.value}>{grade.label}</option>)}</select></label>}
+    {kind === "subjects" && !context.gradeCode && <label>Khối<select name="grade" required value={fields.grade ?? ""} onChange={(e) => set("grade", e.target.value)}><option value="" disabled>Chọn khối đã tạo</option>{grades.map((grade) => <option key={grade.code} value={grade.code}>{grade.name}</option>)}</select></label>}
     {["subjects","teachers","courses"].includes(kind) && <label>{kind === "teachers" ? "Giới thiệu" : "Mô tả"}<textarea name={kind === "teachers" ? "bio" : "description"} rows={4} maxLength={5000} placeholder="Thông tin giới thiệu ngắn (không bắt buộc)" value={fields[kind === "teachers" ? "bio" : "description"] ?? ""} onChange={(e) => set(kind === "teachers" ? "bio" : "description",e.target.value)} /></label>}
     {kind === "materials" && <><label>Loại<select name="type" value={fields.type} onChange={(e) => set("type",e.target.value)}><option value="pdf">PDF</option><option value="video">Video</option></select></label><label>Nguồn<select name="provider" value={fields.provider} onChange={(e) => set("provider",e.target.value)}><option value="drive">Google Drive</option>{fields.type === "video" && <option value="youtube">YouTube</option>}</select></label>{input("url","URL","url")}</>}
     {(["chapters","lessons","materials"].includes(kind) || (!context.id && ["subjects","teachers","courses","menus"].includes(kind))) && input("order_index","Thứ tự (bắt đầu từ 0)","number")}

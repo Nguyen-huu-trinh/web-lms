@@ -1,18 +1,18 @@
 "use client";
 import { useState, type ReactNode, type MouseEvent } from "react";
 import { useSearchParams } from "next/navigation";
-import { NavigationLink as Link } from "@/components/ui/navigation-link";
 import { isMyCoursesFilter } from "@/lib/catalog-search";
-import { subjectGrades, selectedSubjectGrade, type SubjectGrade } from "@/lib/admin-validation";
-import { Icon } from "@/components/ui/icon";
+import { selectedSubjectGrade, type SubjectGrade, type GradeOption } from "@/lib/admin-validation";
+import { subjectSymbol } from "@/lib/subject-symbol";
+import { GradeMenu } from "@/components/admin/grade-menu";
 import { EmptyState } from "./shared";
-import styles from "./catalog.module.css";
+import styles from "./course-home.module.css";
 
-type SubjectPanel = { id: string; name: string; grade: SubjectGrade; mine: boolean; panel: ReactNode; minePanel: ReactNode };
-export function CatalogSubjectBrowser({ subjects, role, search }: { subjects: SubjectPanel[]; role: string; search: string }) {
+type SubjectPanel = { id: string; name: string; grade: SubjectGrade; mine: boolean; teacherCount: number; panel: ReactNode; minePanel: ReactNode };
+export function CatalogSubjectBrowser({ subjects, role, search, grades, gradeActions = {}, addSubject = {}, createGrade }: { gradeActions?: Record<string, ReactNode>; addSubject?: Record<string, ReactNode>; createGrade?: ReactNode; grades: GradeOption[]; subjects: SubjectPanel[]; role: string; search: string }) {
   const params = useSearchParams();
   const mine = isMyCoursesFilter(role, params.get("filter") ?? undefined);
-  const grade = selectedSubjectGrade(params.get("grade"));
+  const grade = selectedSubjectGrade(params.get("grade"), grades);
   const available = mine ? subjects.filter((subject) => subject.mine) : subjects;
   const visible = available.filter((subject) => subject.grade === grade);
   const selected = visible.find((subject) => subject.id === params.get("subject"))?.id ?? visible[0]?.id;
@@ -32,18 +32,15 @@ export function CatalogSubjectBrowser({ subjects, role, search }: { subjects: Su
     if (window.location.pathname + window.location.search !== href) window.history.pushState(null, "", href);
   };
   return <>
-    <div className={styles.catalogToolbar}><nav className="filter-tabs" aria-label="Lọc môn học">{(["all", "mine"] as const).map((filter) => <a key={filter} href={hrefFor(filter, selected)} aria-current={mode === filter ? "page" : undefined} onClick={(event) => navigate(event, hrefFor(filter, selected))}><Icon name={filter === "all" ? "grid" : "book"} />{filter === "all" ? "Tất cả" : "Khóa học của tôi"}</a>)}</nav>
-      <form action="/courses" method="get" role="search" className={styles.catalogSearch}><input type="hidden" name="filter" value={mode} /><input type="hidden" name="grade" value={grade} /><button type="submit" aria-label="Tìm kiếm" title="Tìm kiếm"><Icon name="search" /></button><input id="catalog-search" name="q" type="search" aria-label="Tìm theo tên môn học hoặc giáo viên" defaultValue={search} placeholder="Tìm khóa học…" />{search && <Link href={"/courses?filter=" + mode + "&grade=" + grade} aria-label="Xóa tìm kiếm" title="Xóa tìm kiếm"><Icon name="close" /></Link>}</form>
-    </div>
-    <div className={"split-layout surface " + styles.subjectBrowser}>
-      <aside className="list-sidebar"><div className="sidebar-heading"><Icon name="layers" /><h2 className="section-label">Môn học</h2></div>
-        <nav className={styles.gradeTabs} aria-label="Chọn khối">{subjectGrades.map((option) => <a key={option.value} href={hrefFor(mode, undefined, option.value)} aria-current={grade === option.value ? "page" : undefined} onClick={(event) => navigate(event, hrefFor(mode, undefined, option.value))}><span>{option.label}</span><span className={styles.gradeCount}>{available.filter((subject) => subject.grade === option.value).length}</span></a>)}</nav>
-        <nav aria-label="Môn học">{visible.map((subject) => <a key={subject.id} href={hrefFor(mode, subject.id)} className={selected === subject.id ? "selection-item active" : "selection-item"} aria-current={selected === subject.id ? "page" : undefined} onClick={(event) => navigate(event, hrefFor(mode, subject.id))}><span className="selection-icon"><Icon name="book" /></span><span className="selection-copy">{subject.name}</span><Icon name="chevron" className="ml-auto" /></a>)}</nav>
+    <nav className={styles.grades} aria-label="Chọn khối">{grades.map((option) => <div className={styles.gradeTab} data-active={grade === option.code} key={option.code}><a href={hrefFor(mode, undefined, option.code)} aria-current={grade === option.code ? "page" : undefined} onClick={(event) => navigate(event, hrefFor(mode, undefined, option.code))}>{option.name}</a>{gradeActions[option.code] && <GradeMenu name={option.name}>{gradeActions[option.code]}</GradeMenu>}</div>)}{createGrade}</nav>
+    <div className={styles.workspace}>
+      <aside className={styles.sidebar}><div className={styles.sidebarHeading}><h2>Môn học & kỳ thi</h2><span className={styles.count}>{visible.length} Mục</span>{addSubject[grade]}</div>
+        <nav aria-label="Môn học">{visible.map((subject) => <a key={subject.id} href={hrefFor(mode, subject.id)} className={styles.subjectLink} aria-current={selected === subject.id ? "page" : undefined} onClick={(event) => navigate(event, hrefFor(mode, subject.id))}><span aria-hidden="true">{subjectSymbol(subject.name)}</span><span className="selection-copy">{subject.name}</span><span className={styles.count}>{subject.teacherCount} GV</span></a>)}</nav>
       </aside>
       {!visible.length && <div className="detail-panel"><EmptyState title={search ? "Không tìm thấy môn học hoặc giáo viên phù hợp trong khối này." : mine ? "Bạn chưa được cấp quyền vào môn học nào trong khối này." : "Khối này chưa có môn học."} description="Chọn khối khác hoặc thay đổi bộ lọc để xem môn học." /></div>}
       {subjects.flatMap((subject) => (["all", "mine"] as const).map((filter) => {
         const key = filter + ":" + subject.id;
-        return (visited.has(key) || key === activeKey) && <div key={key} className={styles.subjectPanel} hidden={key !== activeKey}>{filter === "mine" ? subject.minePanel : subject.panel}</div>;
+        return (visited.has(key) || key === activeKey) && <div key={key} className={styles.panel} hidden={key !== activeKey}>{filter === "mine" ? subject.minePanel : subject.panel}</div>;
       }))}
     </div>
   </>;

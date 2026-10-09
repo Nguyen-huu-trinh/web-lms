@@ -5,20 +5,20 @@ import { Icon } from "@/components/ui/icon";
 import { Dialog } from "@/components/admin/dialog";
 import { useToast } from "@/components/ui/toast-provider";
 type Option = { id: string; name: string };
-type Props = { subjects?: Option[]; teachers?: Option[]; target?: { kind: "subject" | "teacher"; id: string; name: string } };
+type Props = { disabled?: boolean; gradeName?: string; iconOnly?: boolean; initialSubjectIds?: string[]; subjects?: Option[]; teachers?: Option[]; target?: { kind: "subject" | "teacher"; id: string; name: string } };
 export function AddStudentForm(props: Props) {
   const [open, setOpen] = useState(false);
   return <div className="student-trigger">
-    <button type="button" className="button secondary" onClick={() => setOpen(!open)} aria-expanded={open}>+ Thêm học sinh</button>
-    {open && <StudentForm {...props} onCancel={() => setOpen(false)} />}
+    <button type="button" className="button secondary" disabled={props.disabled} onClick={() => setOpen(!open)} aria-expanded={open} title={props.disabled ? "Khối chưa có môn học" : "Thêm học sinh"} aria-label="Thêm học sinh">{props.iconOnly ? <Icon name="userPlus" /> : "+ Thêm học sinh"}</button>
+    {open && !props.disabled && <StudentForm {...props} onCancel={() => setOpen(false)} />}
   </div>;
 }
-function StudentForm({ subjects = [], teachers = [], target, onCancel }: Props & { onCancel: () => void }) {
+function StudentForm({ subjects = [], teachers = [], target, onCancel, initialSubjectIds = [], gradeName }: Props & { onCancel: () => void }) {
   const [kind, setKind] = useState<"subject" | "teacher">(target?.kind ?? "subject");
   const [username,setUsername] = useState("");
   const [trial, setTrial] = useState(false);
   const [query, setQuery] = useState("");
-  const [targetIds,setTargetIds] = useState<string[]>([]);
+  const [targetIds,setTargetIds] = useState<string[]>(initialSubjectIds);
   const [confirmation, setConfirmation] = useState<AddStudentState["confirmation"]>();
   const notify = useToast();
   const [state, action, pending] = useActionState(async (previous: AddStudentState, form: FormData) => {
@@ -36,7 +36,7 @@ function StudentForm({ subjects = [], teachers = [], target, onCancel }: Props &
   const visibleOptions = options.filter((option) => normalize(option.name).includes(normalize(query)));
   const allVisibleSelected = visibleOptions.length > 0 && visibleOptions.every((option) => targetIds.includes(option.id));
   const toggleAllLabel = allVisibleSelected ? "Bỏ chọn tất cả kết quả" : "Chọn tất cả kết quả";
-  return <Dialog title={`Thêm học sinh${target ? ` · ${target.name}` : ""}`} onClose={onCancel} busy={pending}><form onSubmit={(event) => {
+  return <Dialog title={`Thêm học sinh${gradeName ? ` · ${gradeName}` : ""}${target ? ` · ${target.name}` : ""}`} onClose={onCancel} busy={pending}><form onSubmit={(event) => {
     event.preventDefault();
     if (pending) return;
     // Keep the controlled selection through the confirmation step instead of
@@ -49,6 +49,7 @@ function StudentForm({ subjects = [], teachers = [], target, onCancel }: Props &
     form.set("confirmed_student_id", confirmation?.studentId ?? "");
     startTransition(() => action(form));
   }} className="admin-form">
+    {gradeName && <p>Cấp quyền cho các môn hiện có được chọn trong khối. Môn thêm sau cần được cấp quyền riêng.</p>}
     <label className="block">Tên đăng nhập học sinh<input required type="text" name="username" minLength={3} maxLength={50} pattern="[a-zA-Z0-9_]{3,50}" autoCapitalize="none" spellCheck={false} autoComplete="off" placeholder="Ví dụ: nguyen_van_an" value={username} onChange={(e) => { setUsername(e.target.value); setConfirmation(undefined); }} disabled={pending} /></label>
     <button type="button" className="student-trial-toggle" aria-pressed={trial} disabled={pending} onClick={() => { setTrial((value) => !value); setConfirmation(undefined); }}><Icon name="check" /> Tài khoản học thử · 30 phút</button>
     {trial && <p className="field-hint">Chỉ dành cho tài khoản mới. Tự hết quyền học sau 30 phút kể từ lúc tạo; tài khoản và tiến độ sẽ bị xóa tự động.</p>}

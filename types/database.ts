@@ -1,5 +1,6 @@
 import type { SubjectGrade } from "@/lib/admin-validation";
 export type Role = "ADMIN" | "STUDENT";
+export type Grade = { code: string; name: string; order_index: number };
 type Base = { id: string; created_at: string };
 export type Profile = Base & { trial_expires_at: string | null; email: string; username: string | null; role: Role; must_change_password: boolean; provisioned_by_admin: boolean };
 export type Subject = Base & { grade: SubjectGrade; order_index: number; name: string; description: string | null };
@@ -27,7 +28,8 @@ export type Database = {
   public: {
     Tables: {
       profiles: Table<Profile, "id" | "email">;
-      subjects: Table<Subject, "name">;
+      grades: Table<Grade, "name">;
+      subjects: Table<Subject, "name" | "grade", [{ foreignKeyName: "subjects_grade_fkey"; columns: ["grade"]; isOneToOne: false; referencedRelation: "grades"; referencedColumns: ["code"] }]>;
       teachers: Table<Teacher, "subject_id" | "name">;
       courses: Table<Course, "teacher_id" | "title">;
       chapters: Table<Chapter, "course_id" | "title" | "order_index">;

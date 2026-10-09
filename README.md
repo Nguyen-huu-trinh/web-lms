@@ -2,7 +2,7 @@
 
 Đọc [hướng dẫn chuyển sang tên đăng nhập](docs/student-usernames.md) và chạy migration `202610070001_student_usernames.sql` trước khi sử dụng phiên bản mới.
 
-Khối môn học: áp dụng `supabase/migrations/202610090001_subject_grade.sql` trước khi triển khai tính năng tạo/sửa khối. Migration thêm `subjects.grade` với ba giá trị `2k9`, `2k8`, `student` (Sinh viên); các môn hiện có mặc định thuộc 2k9. Trang môn học mặc định chọn 2k9, hiển thị số môn của từng khối theo bộ lọc và tìm kiếm hiện tại.
+Khối môn học: chạy lần lượt `202610090001_subject_grade.sql`, `202610100001_grades.sql`, `202610100002_custom_grades.sql` trong `supabase/migrations/`. ADMIN chọn **Thêm khối**, nhập tên tùy ý, sau đó **Thêm môn học** và chọn khối đã tạo. Mã khối mới được sinh tự động; danh sách khối và bộ lọc đọc từ bảng `grades`, không giới hạn ba giá trị cũ. Migration giữ nguyên khối và môn học hiện có, bỏ mặc định `subjects.grade` để môn mới bắt buộc chọn khối tồn tại. Không thể xóa khối đang có môn học. Học sinh chỉ được đọc; hệ thống chưa có tài khoản TEACHER riêng.
 
 # LMS — Courses, Lessons và quản trị
 
@@ -188,3 +188,11 @@ node scripts/test-hosted.mjs
 Script này **có ghi dữ liệu** trên Supabase được cấu hình: tạo tài khoản/content thử có định danh riêng, gọi action bằng HTTP, kiểm tra dữ liệu persist và phân quyền, rồi dọn chính xác fixture trong `finally`. Dùng project test/staging khi chạy lại. Không ngắt tiến trình giữa chừng; nếu cleanup báo lỗi, xử lý các ID được báo. Script phụ thuộc manifest action của bản build Next hiện tại; không phải kiểm thử click/keyboard/visual.
 
 Browser của môi trường triển khai không khả dụng. Chưa xác minh modal, focus, video/PDF thực tế và responsive 375/768/1440px bằng trình duyệt. Chưa coi nghiệm thu toàn bộ hoàn thành cho đến khi các mục này và cấu hình tắt signup được xác nhận.
+
+## Giao diện danh mục khóa học
+
+Trang `/courses` dùng thanh khối ngang, danh sách môn và thẻ giáo viên; điều hướng gồm Tất cả khóa học, Khóa học của tôi và Bảng giá. Nút Vào học kiểm tra quyền trên máy chủ mỗi lần bấm; từ chối quyền mở dialog và không chuyển trang. Đường dẫn trực tiếp tới giáo viên/khóa học cũng được kiểm tra quyền.
+
+ADMIN dùng các icon thêm/sửa/xóa/cấp quyền. Menu Quản lý khối cho phép đổi tên, xóa khối rỗng và thêm học sinh vào các môn hiện có trong khối. Quyền được lưu theo môn; môn tạo sau phải được cấp quyền riêng. Khối có môn học không thể xóa.
+
+Thứ tự khối: chạy migration `supabase/migrations/202610100003_grade_order.sql` trước khi triển khai. ADMIN nhập **Thứ tự hiển thị** trong hộp thoại tạo/sửa khối (số nguyên từ 0, nhỏ hơn đứng trước; trùng số thì theo tên và mã). Khối cũ mặc định thứ tự 0. Khi vào `/courses` không chỉ định khối, học sinh thấy danh mục của khối đầu tiên theo thứ tự này; bộ lọc mặc định là Tất cả khóa học. Đường dẫn có `grade` hợp lệ vẫn mở khối được chỉ định và quyền vào học vẫn được kiểm tra.
