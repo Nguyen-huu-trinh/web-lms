@@ -419,3 +419,48 @@
   .courseCard, .courseName > :global(.icon:last-child) { transition: none; }
   .courseCard:hover, .courseLink:hover .courseName > :global(.icon:last-child) { transform: none; }
 }
+
+/* Dedicated course page keeps the existing curriculum in a wider reading area. */
+:global(.app-content):has(.coursePage) { max-width: 1600px; padding: 24px 40px 48px; }
+.coursePage :global(.split-layout) { grid-template-columns: 290px minmax(0,1fr); gap: 24px; }
+.coursePage :global(.detail-panel) { padding: 24px; }
+.backToTeacher { display: inline-flex; align-items: center; gap: 8px; color: #64748b; font-size: 14px; min-height: 44px; }
+.backToTeacher > :global(.icon) { transform: rotate(180deg); width: 16px; }
+@media(max-width:1000px) { .coursePage :global(.split-layout) { grid-template-columns: 240px minmax(0,1fr); gap: 16px; } }
+@media(max-width:760px) {
+  :global(.app-content):has(.coursePage) { padding: 16px 16px 28px; }
+  .coursePage :global(.split-layout) { grid-template-columns: minmax(0,1fr); }
+  .coursePage :global(.detail-panel) { padding: 16px; }
+  .coursePage :global(.list-sidebar nav) { max-height: 210px; overflow-y: auto; }
+  .backToTeacher { font-size: 12px; }
+}
+
+:global(body):has(.singleCourse) { background: #f7f9fc; }
+:global(.app-content):has(.singleCourse) { max-width: none; padding: 0 40px 48px; }
+.singleCourse .fullCourseContent { width: 100%; min-width: 0; padding: 24px; }
+.courseAdmin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.courseAdmin :global(.record-controls) { margin: 0; }
+@media(max-width:760px) {
+  :global(.app-content):has(.singleCourse) { padding: 0 16px 28px; }
+  .singleCourse .fullCourseContent { padding: 16px; }
+}
+
+/* Place each editing control beside the content it manages. */
+.catalog :global(.course-heading-tools) { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.catalog :global(.course-heading-tools > div:first-child) { flex: 1; min-width: 0; }
+.catalog :global(.course-heading-tools > .record-controls) { margin: 0; flex-wrap: nowrap; flex-shrink: 0; }
+.catalog :global(.curriculum-toolbar) { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 10px; }
+.catalog :global(.curriculum-toolbar h3) { font-size: 15px; font-weight: 700; color: #475569; }
+.catalog :global(.curriculum-toolbar > .record-controls) { margin: 0; }
+.catalog :global(.chapter-header-actions) { display: flex; align-items: center; gap: 4px; }
+.catalog :global(.admin-chapter-card > .chapter > summary) { padding-right: 162px; }
+.catalog :global(.course-heading-tools .record-controls > button),
+.catalog :global(.chapter-header-actions .record-controls > button),
+.catalog :global(.curriculum-toolbar .record-controls > button) { width: 32px; min-width: 32px; height: 32px; min-height: 32px; padding: 6px; border-radius: 9px; }
+@media(max-width:600px) {
+  .catalog :global(.course-heading-tools .record-controls > button),
+  .catalog :global(.chapter-header-actions .record-controls > button),
+  .catalog :global(.curriculum-toolbar .record-controls > button) { width: 40px; height: 40px; }
+  .catalog :global(.chapter-header-actions) { position: static; justify-content: flex-end; padding: 8px 12px 0; }
+  .catalog :global(.admin-chapter-card > .chapter > summary) { padding-right: 38px; }
+}

@@ -58,3 +58,10 @@ test('grade order accepts nonnegative integers and rejects invalid numbers', () 
     assert.throws(() => parseGrade(form({name:'Grade',order_index})), InputError);
   }
 });
+
+test('teacher status trims text, allows clearing and preserves omitted values', () => {
+  assert.equal(parseRecord('teachers', form({name:'Teacher', status:'  Ready  '})).values.status, 'Ready');
+  assert.equal(parseRecord('teachers', form({name:'Teacher', status:'  '})).values.status, null);
+  assert.equal(Object.hasOwn(parseRecord('teachers', form({name:'Teacher'})).values, 'status'), false);
+  assert.throws(() => parseRecord('teachers', form({name:'Teacher',status:'x'.repeat(2001)})), InputError);
+});

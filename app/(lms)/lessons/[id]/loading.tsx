@@ -1,4 +1,4 @@
-import styles from "@/components/learning/lesson-workspace.module.css";
-export default function LoadingLesson() {
-  return <main className={styles.workspace} role="status" aria-busy="true" aria-label="Đang tải bài học"><span className="sr-only">Đang tải bài học…</span><header className={styles.topbar} aria-hidden="true"><div className="skeleton w-1/3" /></header><div className={styles.body} aria-hidden="true"><section className={styles.stage}><div className="skeleton h-full min-h-64 w-full" /></section><aside className="surface lesson-panel p-5"><div className="skeleton w-2/3" />{[0,1,2].map((id) => <div key={id} className="skeleton large mt-5" />)}</aside></div></main>;
-}
+import l from "@/components/learning/lesson-workspace.module.css";
+import s from "@/components/learning/loading-skeleton.module.css";
+import { LoadingFrame, Skeleton } from "@/components/learning/loading-skeleton";
+export default function LoadingLesson() { return <LoadingFrame className={`${l.workspace} ${s.lesson}`} label="Đang tải bài học…"><header className={l.topbar}><Skeleton width="34px" height={34} /><div className={s.copy}><Skeleton width="65%" height={20} /></div><Skeleton width="85px" height={36} /></header><div className={l.body}><section className={l.stage}><div className={s.player} /></section><aside className={`surface lesson-panel ${s.lessonPanel}`}><div className={s.row}><Skeleton width="45%" height={32} /><Skeleton width="45%" height={32} /></div>{[0,1,2,3,4].map(i => <div className={`${s.row} ${s.material}`} key={i}><Skeleton width="22px" height={22} /><div className={s.copy}><Skeleton width="80%" /></div><Skeleton width="65px" height={32} /></div>)}</aside></div></LoadingFrame>; }

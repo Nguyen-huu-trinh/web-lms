@@ -108,3 +108,64 @@
   .card, .avatar, .gradeTab, .sidebar nav a, .enter, .enter :global(.icon) { transition: none; }
   .card:hover, .card:hover .avatar, .sidebar nav a:hover, .enter:not(:disabled):hover :global(.icon), .enter:not(:disabled):active { transform: none; }
 }
+
+/* Compact selectors replace the desktop navigation only on phones. */
+.mobileGrade, .mobileSubject { display: none; }
+@media (max-width: 600px) {
+  :global(.app-content):has(.home) { padding: 0 12px 24px; }
+  .home > .grades { display: none; }
+  .mobileGrade { display: flex; align-items: center; gap: 8px; margin: 12px 0; padding: 10px 12px; border: 1px solid #dfe6f1; border-radius: 16px; background: white; }
+  .mobileField { flex: 1; min-width: 0; }
+  .mobileField > span { display: block; color: #7d8da7; font-size: 11px; margin-bottom: 2px; }
+  .mobileField select, .mobileSubject select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 28px 8px 10px; border: 1px solid #d6e6ff; border-radius: 10px; background: #eff6ff; color: #285ff3; font: inherit; font-size: 16px; font-weight: 600; text-overflow: ellipsis; }
+  .mobileField select:focus-visible, .mobileSubject select:focus-visible { outline: 2px solid #285ff3; outline-offset: 2px; }
+  .mobileGrade :global(.record-controls) { margin: 0; flex-shrink: 0; }
+  .mobileGrade .gradeMenu summary { min-width: 44px; min-height: 44px; display: grid; place-items: center; }
+  .workspace { gap: 14px; }
+  .sidebar { border-radius: 16px; padding: 10px 12px 12px; }
+  .sidebarHeading { padding: 0 0 8px; margin-bottom: 8px; }
+  .sidebar .sidebarHeading h2 { font-size: 11px; }
+  .sidebarHeading :global(.record-controls button) { min-width: 44px; min-height: 44px; }
+  .sidebar nav { display: none; }
+  .mobileSubject { display: block; }
+  .mobileSubjectLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .mobileSubject select:disabled, .mobileField select:disabled { opacity: .6; }
+  .heading { gap: 10px; padding: 14px; min-height: 0; border-radius: 16px; margin-bottom: 12px; }
+  .heading > div:not(:global(.admin-controls)) { flex: 1; min-width: 0; }
+  .heading h1 { font-size: 16px; overflow-wrap: anywhere; }
+  .heading p { font-size: 12px; }
+  .headingCount { display: none; }
+  .subjectSymbol { width: 24px; font-size: 23px; }
+  .cards { grid-template-columns: 1fr; gap: 12px; }
+  .card { padding: 16px; border-radius: 18px; }
+  .identity { gap: 12px; min-height: 48px; padding-right: 30px; }
+  .identity > div { min-width: 0; }
+  .identity h2 { font-size: 16px; letter-spacing: -.2px; overflow-wrap: anywhere; }
+  .identity p { font-size: 12px; margin-top: 3px; }
+  .avatar { width: 48px; height: 48px; border-radius: 15px; font-size: 19px; }
+  .accessStar { width: 30px; height: 30px; top: 14px; right: 12px; }
+  .accessStar :global(.icon) { width: 18px; height: 18px; }
+  .progress { margin: 14px 0 12px; padding-bottom: 12px; font-size: 12px; }
+  .progress label { flex-wrap: wrap; }
+  .progress progress { height: 6px; }
+  .enter { min-height: 44px; border-radius: 12px; }
+  .home :global(.admin-controls) { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding-top: 8px; }
+  .heading > :global(.admin-controls) { flex: 1 0 100%; justify-content: flex-end; border-top: 1px solid #eef2f7; }
+  .home :global(.admin-controls button) { min-width: 44px; min-height: 44px; }
+}
+
+/* Keep the catalog header readable without a large sticky stack on phones. */
+@media (max-width: 600px) {
+  :global(body):has(.home) :global(.site-header) { position: relative; }
+  :global(body):has(.home) :global(.site-nav) { gap: 10px; padding: 10px 12px; min-height: 0; }
+  :global(body):has(.home) :global(.brand) { gap: 8px; font-size: 19px; }
+  :global(body):has(.home) :global(.brand-caption) { font-size: 8px; margin-top: 3px; }
+  :global(body):has(.home) :global(.user-name) { display: none; }
+  :global(body):has(.home) :global(.user-menu summary) { padding: 4px; min-width: 44px; min-height: 44px; }
+  :global(body):has(.home) :global(.primary-nav) { display: grid; grid-template-columns: 1fr 1fr .75fr; gap: 2px; padding: 4px; border-radius: 14px; overflow: visible; }
+  :global(body):has(.home) :global(.primary-nav a) { padding: 8px 3px; min-width: 0; min-height: 44px; font-size: 11px; letter-spacing: -.25px; border-radius: 10px; }
+  :global(body):has(.home) :global(.primary-nav .icon) { display: none; }
+  :global(body):has(.home) :global(.header-search) { border-radius: 12px; gap: 4px; padding: 0 10px; }
+  :global(body):has(.home) :global(.header-search button) { min-width: 36px; min-height: 44px; }
+  :global(body):has(.home) :global(.header-search input[type=search]) { font-size: 16px; min-width: 0; min-height: 44px; }
+}

@@ -41,7 +41,7 @@ export function parseRecord(entity: Entity, form: FormData) {
       const grade = text(form, "grade");
       return { entity, values: { ...catalogOrder, grade, name: text(form,"name"), description: text(form,"description",false,5000) || null } };
     }
-    case "teachers": return { entity, values: { ...catalogOrder, name: text(form,"name"), bio: text(form,"bio",false,5000) || null } };
+    case "teachers": return { entity, values: { ...catalogOrder, name: text(form,"name"), bio: text(form,"bio",false,5000) || null, ...(form.has("status") ? {status: text(form,"status",false,2000) || null} : {}) } };
     case "courses": return { entity, values: { ...catalogOrder, title: text(form,"title"), description: text(form,"description",false,5000) || null } };
     case "chapters": case "lessons": return { entity, values: { title: text(form,"title"), order_index: order(form) } };
     case "materials": {

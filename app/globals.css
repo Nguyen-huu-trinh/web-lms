@@ -236,3 +236,14 @@ progress::-moz-progress-bar { background: linear-gradient(90deg,#2563eb,#6366f1)
 .account-chevron { display: none; }
 @media(max-width:900px) { .site-nav { flex-wrap: wrap; gap: 12px; padding: 12px 16px; } .primary-nav { order: 3; width: 100%; overflow-x: auto; } .primary-nav a { flex: 1 0 auto; justify-content: center; padding: 8px 12px; } }
 @media(max-width:540px) { .brand-caption { display: block; font-size: 9px; } .brand { font-size: 19px; } .brand-icon { width: 40px; height: 40px; } .user-menu summary { min-height: 44px; padding: 4px; } .primary-nav a { font-size: 12px; } }
+
+
+.mobile-search-toggle { display: none; }
+@media (max-width: 600px) {
+  .site-nav .mobile-search-toggle { display: grid; place-items: center; margin-left: auto; flex: 0 0 44px; width: 44px; height: 44px; border: 1px solid #dfe7f2; border-radius: 50%; background: #f5f8fc; color: #7187a7; }
+  .site-nav .mobile-search-toggle[aria-expanded=true] { color: #285ff3; background: #eff6ff; border-color: #bfd7ff; }
+  .mobile-search-toggle:focus-visible { outline: 2px solid #285ff3; outline-offset: 2px; }
+  .site-nav .header-search:not([data-open=true]) { display: none; }
+  .site-nav .header-search + .user-menu { margin-left: 0; }
+  .site-nav .header-search input[type=search] { font-size: 16px; min-width: 0; }
+}

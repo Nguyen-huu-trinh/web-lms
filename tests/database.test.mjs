@@ -83,6 +83,17 @@ test("LMS migration and security boundaries", async (t) => {
 
     await db.exec(await readFile(new URL("../supabase/migrations/202610100002_custom_grades.sql", import.meta.url), "utf8"));
     await db.exec(await readFile(new URL("../supabase/migrations/202610100003_grade_order.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/migrations/202610100004_teacher_status.sql", import.meta.url), "utf8"));
+    await t.test("teacher status preserves records and constrains length", async () => {
+      assert.equal((await query("select status from teachers where id=$1", [teacherA])).rows[0].status, null);
+      await login(admin);
+      await query("update teachers set status='Ready' where id=$1", [teacherA]);
+      assert.equal((await query("select status from teachers where id=$1", [teacherA])).rows[0].status, 'Ready');
+      await assert.rejects(query("update teachers set status=$1 where id=$2", ['x'.repeat(2001),teacherA]), {code:'23514'});
+      await login(student);
+      assert.equal((await query("update teachers set status='Changed' where id=$1 returning id", [teacherA])).rows.length, 0);
+      await db.exec("reset role");
+    });
     await t.test("grade ordering defaults to zero and rejects negative values", async () => {
       assert.equal(await scalar("select count(*)::int from grades where order_index=0"), 3);
       await query("update grades set order_index=10 where code='2k8'");

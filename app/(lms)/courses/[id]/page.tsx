@@ -1,6 +1,7 @@
 import { createLearningReader } from "@/lib/cache/learning";
 import { requireUser } from "@/services/auth";
-import { createCourseReader, courseProgressSummaries } from "@/repositories/lms";
+import { createCourseReader } from "@/repositories/lms";
+import { allRows } from "@/repositories/pagination";
 import { isUuid } from "@/lib/learning";
 import { DeniedDialog } from "@/components/learning/denied-dialog";
 import { CourseView } from "@/components/learning/course-view";
@@ -16,14 +17,10 @@ export default async function CoursePage({ params, searchParams }: { params: Pro
   const content = reader.content(id);
   // Attach a rejection handler immediately; the streamed panel presents errors.
   void content.catch(() => {});
-  const [context, sidebar] = await Promise.all([
+  const [context, grades] = await Promise.all([
     reader.teacher(course.teacher_id),
-    reader.courses(course.teacher_id).then((courses) => ({
-      courses,
-      progressByCourse: courseProgressSummaries(client, courses.filter((item) => item.id !== course.id).map((item) => item.id), profile.id).catch(() => null),
-    })),
+    allRows((a,b) => client.from("grades").select("*").order("order_index").order("name").order("code").range(a,b)),
   ]);
   if (!context) return <DeniedDialog />;
-  const { courses, progressByCourse } = sidebar;
-  return <CourseView navigationBase={`/courses/${routeId}`} {...context} courses={courses} initialId={id} progressByCourse={progressByCourse} content={content} admin={profile.role === "ADMIN"} />;
+  return <CourseView {...context} course={course} grades={grades} content={content} admin={profile.role === "ADMIN"} />;
 }
