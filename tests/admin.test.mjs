@@ -2,6 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseRecord, validateContext, InputError } from '../lib/admin-validation.ts';
 const form = (values) => { const f = new FormData(); for (const [k,v] of Object.entries(values)) f.set(k,String(v)); return f; };
+test('subject grade accepts the three options and rejects invalid input', () => {
+  for (const grade of ['2k9', '2k8', 'student']) {
+    assert.equal(parseRecord('subjects', form({name:'Toán', grade})).values.grade, grade);
+  }
+  for (const grade of ['', '2k7', 'Sinh viên', 'ADMIN']) {
+    assert.throws(() => parseRecord('subjects', form({name:'Toán', grade})), InputError);
+  }
+  // Older forms must preserve an existing grade; SQL supplies the insert default.
+  assert.equal(Object.hasOwn(parseRecord('subjects', form({name:'Toán'})).values, 'grade'), false);
+});
 test('CRUD whitelist trims names and ignores role, IDs and parent reassignment', () => {
   for (const entity of ['subjects','teachers','menus']) {
     const parsed = parseRecord(entity,form({name:'  Test  ',price:0,role:'ADMIN',id:'spoof',subject_id:'spoof'}));

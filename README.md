@@ -2,6 +2,8 @@
 
 Đọc [hướng dẫn chuyển sang tên đăng nhập](docs/student-usernames.md) và chạy migration `202610070001_student_usernames.sql` trước khi sử dụng phiên bản mới.
 
+Khối môn học: áp dụng `supabase/migrations/202610090001_subject_grade.sql` trước khi triển khai tính năng tạo/sửa khối. Migration thêm `subjects.grade` với ba giá trị `2k9`, `2k8`, `student` (Sinh viên); các môn hiện có mặc định thuộc 2k9. Trang môn học mặc định chọn 2k9, hiển thị số môn của từng khối theo bộ lọc và tìm kiếm hiện tại.
+
 # LMS — Courses, Lessons và quản trị
 
 Giao diện đã được redesign theo Modern Education SaaS với xanh dương–bạc, giữ nguyên business logic. Xem [báo cáo redesign](docs/ui-redesign.md) về design system, các màn hình và phạm vi kiểm thử.

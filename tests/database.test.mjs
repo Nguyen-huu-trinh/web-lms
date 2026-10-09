@@ -43,6 +43,21 @@ test("LMS migration and security boundaries", async (t) => {
     await db.exec("insert into menus(name,price) values ('Menu A',100)");
     await db.exec(await readFile(new URL("../supabase/migrations/202610060002_password_auth.sql", import.meta.url), "utf8"));
 
+    await db.exec(await readFile(new URL("../supabase/migrations/202610090001_subject_grade.sql", import.meta.url), "utf8"));
+    await t.test("subject grade backfills existing rows, defaults new rows and enforces options", async () => {
+      assert.equal((await query("select grade from subjects where id=$1", [subject])).rows[0].grade, "2k9");
+      await db.exec("begin");
+      try {
+        assert.equal((await query("insert into subjects(name) values ('Grade default') returning grade")).rows[0].grade, "2k9");
+        for (const grade of ["2k9", "2k8", "student"]) {
+          assert.equal((await query("update subjects set grade=$1 where id=$2 returning grade", [grade, subject])).rows[0].grade, grade);
+        }
+      } finally { await db.exec("rollback"); }
+      for (const grade of ["2k7", "", null]) {
+        await assert.rejects(query("update subjects set grade=$1 where id=$2", [grade, subject]));
+      }
+    });
+
     await db.exec(await readFile(new URL("../supabase/migrations/202610070001_student_usernames.sql", import.meta.url), "utf8"));
 
     await t.test("username grants enforce permissions and atomic account identity", async () => {

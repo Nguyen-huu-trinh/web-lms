@@ -1,3 +1,15 @@
+export const subjectGrades = [
+  { value: "2k9", label: "2k9" },
+  { value: "2k8", label: "2k8" },
+  { value: "student", label: "Sinh viên" },
+] as const;
+export type SubjectGrade = typeof subjectGrades[number]["value"];
+export function isSubjectGrade(value: unknown): value is SubjectGrade {
+  return subjectGrades.some((grade) => grade.value === value);
+}
+export function selectedSubjectGrade(value: unknown): SubjectGrade {
+  return isSubjectGrade(value) ? value : "2k9";
+}
 export const entityNames = {
   subjects: "môn học", teachers: "giáo viên", courses: "khóa học",
   chapters: "chương", lessons: "bài học", materials: "tài liệu", menus: "mục giá",
@@ -32,7 +44,11 @@ export function parseRecord(entity: Entity, form: FormData) {
   const catalogOrder = ["subjects", "teachers", "courses", "menus"].includes(entity) && form.has("order_index")
     ? { order_index: order(form) } : {};
   switch (entity) {
-    case "subjects": return { entity, values: { ...catalogOrder, name: text(form,"name"), description: text(form,"description",false,5000) || null } };
+    case "subjects": {
+      const grade = form.has("grade") ? text(form, "grade", false) : undefined;
+      if (grade !== undefined && !isSubjectGrade(grade)) throw new InputError("Vui lòng chọn khối 2k9, 2k8 hoặc Sinh viên.");
+      return { entity, values: { ...catalogOrder, ...(isSubjectGrade(grade) ? { grade } : {}), name: text(form,"name"), description: text(form,"description",false,5000) || null } };
+    }
     case "teachers": return { entity, values: { ...catalogOrder, name: text(form,"name"), bio: text(form,"bio",false,5000) || null } };
     case "courses": return { entity, values: { ...catalogOrder, title: text(form,"title"), description: text(form,"description",false,5000) || null } };
     case "chapters": case "lessons": return { entity, values: { title: text(form,"title"), order_index: order(form) } };

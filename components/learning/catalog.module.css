@@ -363,6 +363,37 @@
   .courseSwitchContent[data-pending="true"] .courseSwitchSpinner { animation: none; opacity: 1; }
 }
 
+.catalog :global(.list-sidebar) .gradeTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: 4px;
+  margin: 10px 0;
+  padding: 4px;
+  border-radius: 14px;
+  background: #eff4fb;
+  overflow: visible;
+}
+
+.gradeTabs a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.gradeTabs a:hover { background: #dfeafb; }
+.gradeTabs a[aria-current] { background: var(--catalog-gradient); color: #fff; }
+.gradeTabs a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.gradeCount { padding: 1px 5px; border-radius: 99px; background: #ffffffb3; color: #2563b8; font-size: 11px; }
+
 .subjectPanel { min-width: 0; }
 .subjectPanel[hidden] { display: none; }
 
