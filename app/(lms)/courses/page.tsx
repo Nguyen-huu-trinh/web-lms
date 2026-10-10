@@ -12,7 +12,7 @@ import { matchesCatalogSearch, isMyCoursesFilter } from "@/lib/catalog-search";
 import { selectedSubjectGrade } from "@/lib/admin-validation";
 import styles from "@/components/learning/course-home.module.css";
 import { requireUser } from "@/services/auth";
-import { catalog, courseProgressSummaries } from "@/repositories/lms";
+import { catalog, courseProgressSummaries, listGrades } from "@/repositories/lms";
 import { catalogAccessCounts } from "@/repositories/catalog-access";
 import { AddStudentForm } from "@/components/add-student-form";
 import { EmptyState } from "@/components/learning/shared";
@@ -26,7 +26,7 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
   const search = (query.q ?? "").trim();
   const [data, grades] = await Promise.all([
     catalog(client, profile, read),
-    allRows((a, b) => client.from("grades").select("*").order("order_index").order("name").order("code").range(a, b)),
+    listGrades(client, read),
   ]);
   const grade = selectedSubjectGrade(query.grade, grades);
   const admin = profile.role === "ADMIN";
@@ -70,7 +70,7 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
         {admin && subject && <div className="admin-controls"><RecordControls iconOnly grades={grades} context={{entity:"subjects",id:subject.id}} values={{name:subject.name,description:subject.description,grade:subject.grade}} /><AddStudentForm iconOnly target={{kind:"subject",id:subject.id,name:subject.name}} /><StudentList iconOnly kind="subject" targetId={subject.id} name={subject.name} /><RecordControls iconOnly context={{entity:"teachers",parentId:subject.id}} /></div>}
         {subject?.description?.trim() && <p className="muted">{subject.description.trim()}</p>}</div>}>
         {!subjectTeachers.length && <EmptyState title="Môn học chưa có giáo viên." />}
-        <ul className={styles.cards}>{subjectTeachers.map((teacher) => { const stat = stats.get(teacher.id); const percent = stat?.total ? Math.round(stat.count / stat.total * 100) : 0; return <li className={styles.card} data-featured={percent > 0 && percent < 80} key={teacher.id}>{admin ? <span aria-hidden="true" /> : <TeacherFavoriteButton id={teacher.id} name={teacher.name} />}<div className={styles.identity}><span className={styles.avatar} aria-hidden="true">{teacher.name.trim().slice(0,1).toUpperCase()}</span><div><h2>{teacher.name}</h2><p>{teacher.bio || "Lộ trình học tập"}</p></div></div><div className={styles.progress} data-complete={percent >= 80} data-started={percent > 0}><span className={styles.progressValue}>{percent > 0 ? `${percent}%` : "Ch\u01b0a h\u1ecdc"}</span><progress aria-label={`Tiến độ ${teacher.name}`} value={percent} max={100} /></div><TeacherEntry id={teacher.id} featured={percent > 0 && percent < 80} started={percent > 0} />
+        <ul className={styles.cards}>{subjectTeachers.map((teacher) => { const stat = stats.get(teacher.id); const percent = stat?.total ? Math.round(stat.count / stat.total * 100) : 0; return <li className={styles.card} data-featured={percent > 0 && percent < 80} key={teacher.id}>{admin ? <span aria-hidden="true" /> : <TeacherFavoriteButton id={teacher.id} name={teacher.name} />}<div className={styles.identity}><span className={styles.avatar} aria-hidden="true">{teacher.name.trim().slice(0,1).toUpperCase()}</span><div><h2>{teacher.name}</h2><p>{teacher.bio || "Lộ trình học tập"}</p></div></div><div className={styles.progress} data-complete={percent >= 80} data-started={percent > 0}><span className={styles.progressValue}>{percent > 0 ? `${percent}%` : "Ch\u01b0a h\u1ecdc"}</span><progress aria-label={`Tiến độ ${teacher.name}`} value={percent} max={100} /></div><TeacherEntry id={teacher.id} accessible={admin || data.accessibleTeacherIds.has(teacher.id)} started={(stat?.count ?? 0) > 0} />
         {admin && subject && <div className="admin-controls"><RecordControls iconOnly context={{entity:"teachers",id:teacher.id,parentId:subject.id}} values={{name:teacher.name,bio:teacher.bio,status:teacher.status}} /><AddStudentForm iconOnly target={{kind:"teacher",id:teacher.id,name:teacher.name}} /><StudentList iconOnly kind="teacher" targetId={teacher.id} name={teacher.name} /></div>}</li>; })}</ul>
       </TeacherList>);
 

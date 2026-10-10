@@ -14,7 +14,7 @@ export function CatalogSkeleton() {
       <section className={home.teacherPanel}>
         <div className={home.panelToolbar}>
           <div className={home.heading}><Skeleton width="24px" height={24} /><div className={s.copy}><Skeleton width="100px" height={18} /><Skeleton width="180px" height={10} /></div></div>
-          <div className={s.desktop}><Skeleton width="200px" height={32} /></div>
+          <div className={s.desktop}><Skeleton width="220px" height={32} /></div>
         </div>
         <div className={home.cards}>{Array.from({length: 12}, (_, i) => <div className={home.card} key={i}>
           <Skeleton width="14px" height={14} />

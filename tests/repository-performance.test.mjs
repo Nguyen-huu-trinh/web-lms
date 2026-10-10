@@ -13,7 +13,7 @@ registerHooks({ resolve(specifier, context, next) {
   }
   return next(specifier, context);
 } });
-const { createCourseReader, courseContent, courseProgressSummaries, lessonContent, teacherContext, teacherCourses, catalog, listMenus } = await import(repositoryUrl);
+const { createCourseReader, courseContent, courseProgressSummaries, lessonContent, teacherContext, teacherCourses, catalog, listMenus, listGrades } = await import(repositoryUrl);
 function fixture(tables, failTable) {
   const calls = [];
   const client = createClient("https://example.test", "test-key", { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: async (input, init) => {
@@ -197,4 +197,30 @@ test("panel reads trust live course RLS, reject wrong parents and never trust wa
   assert.equal(calls.includes("teachers"), false);
   data.courses = []; // Supabase courses RLS denies a revoked grant/session.
   assert.equal(await createCourseReader(client, profile, read).panel("teacher", "course"), null);
+});
+
+
+test("grade metadata is reused across catalog, teacher and course navigation", async () => {
+  const data = { ...tables, grades: [{ code: "2k9", name: "Grade", order_index: 0 }] };
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  for (let i = 0; i < 3; i++) assert.equal((await listGrades(client, read))[0].code, "2k9");
+  assert.equal(calls.filter(name => name === "grades").length, 1);
+  const failed = fixture(data, "grades");
+  await assert.rejects(listGrades(failed.client, memoryReader()));
+});
+
+test("subject cache reduces repeat reads without caching teacher membership", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  for (let i = 0; i < 2; i++) {
+    assert.equal((await createCourseReader(client, profile, read).teacher("teacher")).subject.id, "subject");
+  }
+  assert.equal(calls.filter(name => name === "subjects").length, 1);
+  assert.equal(calls.filter(name => name === "teachers").length, 2);
+  assert.equal(calls.filter(name => name === "student_subject_access").length, 2);
+  data.student_subject_access = [];
+  assert.equal(await createCourseReader(client, profile, read).teacher("teacher"), null);
 });

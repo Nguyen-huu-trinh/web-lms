@@ -21,12 +21,16 @@ export async function catalog(client: Client, profile: Profile, read: DataReader
   return { subjects, teachers, accessibleTeacherIds: new Set(accessibleTeachers.map((t) => t.id)), mySubjectIds };
 }
 
-export const teacherContext = cache(async (client: Client, teacherId: string, profile: Profile) => {
+export const teacherContext = cache(async (client: Client, teacherId: string, profile: Profile, read: DataReader = uncached) => {
   const { data: teacher, error } = await client.from("teachers").select("*").eq("id", teacherId).maybeSingle();
   if (error) throw new Error("Không thể tải giáo viên.");
   if (!teacher) return null;
   const [subjectResult, access] = await Promise.all([
-    client.from("subjects").select("*").eq("id", teacher.subject_id).maybeSingle(),
+    read("subject:" + teacher.subject_id, async () => {
+      const result = await client.from("subjects").select("*").eq("id", teacher.subject_id).maybeSingle();
+      if (result.error) throw new Error("Unable to load subject");
+      return result;
+    }),
     profile.role === "ADMIN" ? Promise.resolve(null) : Promise.all([
       client.from("student_subject_access").select("id").eq("student_id", profile.id).eq("subject_id", teacher.subject_id).maybeSingle(),
       client.from("student_teacher_access").select("id").eq("student_id", profile.id).eq("teacher_id", teacher.id).maybeSingle(),
@@ -111,7 +115,7 @@ export function createCourseReader(client: Client, profile: Profile, read: DataR
     return courses.get(id)!;
   };
   const getTeacher = (id: string) => {
-    if (!teachers.has(id)) teachers.set(id, teacherContext(client, id, profile));
+    if (!teachers.has(id)) teachers.set(id, teacherContext(client, id, profile, read));
     return teachers.get(id)!;
   };
   return {
@@ -170,3 +174,7 @@ export async function listMenus(client: Client, read: DataReader = uncached) {
   return read("pricing", () => allRows((a,b) => client.from("menus").select("*").order("order_index").order("name").order("id").range(a,b)));
 }
 
+
+export function listGrades(client: Client, read: DataReader = uncached) {
+  return read("catalog:grades", () => allRows((a, b) => client.from("grades").select("*").order("order_index").order("name").order("code").range(a, b)));
+}

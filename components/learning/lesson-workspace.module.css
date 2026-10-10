@@ -8,9 +8,9 @@
 .back :global(.icon) { transform: rotate(180deg); width: 18px; }
 .topActions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .position { color: #94a3b8; font-size: 13px; }
-.topActions :global(.button) { min-height: 38px; padding: 8px 12px; border-radius: 99px; font-size: 13px; background: #334155; border: 1px solid #34445c; color: #f1f5f9; box-shadow: none; }
+.topActions :global(.button) { min-height: 36px; padding: 7px 12px; border-radius: 10px; font-size: 13px; background: #334155; border: 1px solid #34445c; color: #f1f5f9; box-shadow: none; }
 .topActions :global(.completed-button) { background: #173b39; color: #34d399; border-color: #30564a; opacity: 1; }
-.next { display: inline-flex; align-items: center; gap: 10px; background: #2563b8; color: #ffffff; padding: 9px 16px; border-radius: 99px; font-size: 14px; font-weight: 750; }
+.next { display: inline-flex; align-items: center; gap: 10px; background: #2563b8; color: #ffffff; min-height: 36px; padding: 7px 16px; border-radius: 10px; font-size: 13px; font-weight: 750; }
 .next:hover { background: #3174cf; }
 .body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) 360px; }
 .stage { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto; background: #0f172a; }
@@ -137,9 +137,9 @@
 .topbar, .workspace :global(.lesson-panel), .workspace :global(.chapter), .workspace :global(.material-list li) { background: #1e293b; border-color: #334155; }
 .back, .topActions :global(.button:not(.completed-button)) { background: #334155; color: #f1f5f9; border-color: #334155; }
 .back:hover { background: #475569; color: white; }
-.topActions :global(.completed-button) { background: #334155; color: #f1f5f9; border-color: #334155; }
-.topActions :global(.completed-button .icon) { color: #34d399; }
-.next { background: #f59e0b; color: #fff; }
+.topActions :global(.completed-button) { background: #30404e; color: #d4dee8; border-color: #30404e; }
+.topActions :global(.completed-button .icon) { width: 14px; height: 14px; padding: 2px; border: 1px solid currentColor; border-radius: 50%; color: #64b6a8; }
+.next { background: #f5a30b; color: #fff; border: 1px solid #f8b52e; box-shadow: 0 2px 6px #f59e0b26; }
 .next:hover { background: #d97706; }
 .workspace :global(.panel-tabs [aria-selected=true]) { background: transparent; color: #fbbf24; border-bottom-color: #fbbf24; }
 .workspace :global(.panel-tabs button span), .workspace :global(.panel-tabs [aria-selected=true] span) { background: #334155; color: inherit; }
@@ -179,3 +179,6 @@
   .workspace .materialFooter :global(.text-link) { min-height: 40px; padding-inline: 10px; }
   .materialFooter:has(:global(.record-controls)) { flex-wrap: wrap; max-width: 110px; justify-content: flex-end; }
 }
+
+.topActions .next :global(.icon) { width: 14px; height: 14px; }
+@media (pointer: coarse) { .topActions :global(.button), .topActions .next { min-height: 44px; } }

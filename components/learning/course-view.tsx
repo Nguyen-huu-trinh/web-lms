@@ -15,7 +15,7 @@ export function CourseView({ subject, teacher, course, grades, content, admin = 
     <nav className={navigation.grades} aria-label="Chọn khối">{grades.map((grade) => <Link key={grade.code} href={"/courses?" + new URLSearchParams({grade:grade.code,filter:"all"})} aria-current={grade.code === subject.grade ? "page" : undefined}>{grade.name}</Link>)}</nav>
     <div className={styles.courseContainer}>
     <nav className={navigation.breadcrumb} aria-label="Đường dẫn">
-      <Link href={back}><Icon name="arrow" />Quay lại DS môn</Link><Icon name="chevron" />
+      <Link prefetch={true} href={back}><Icon name="arrow" />Quay lại DS môn</Link><Icon name="chevron" />
       <Link href={`/courses/teachers/${teacher.id}`}>{teacher.name}</Link><Icon name="chevron" />
       <strong aria-current="page">{course.title}</strong>
     </nav>

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  --learning-content-width: 1360px;
   --font-geist-mono: Consolas, "Courier New", monospace;
   --primary: #2563eb;
   --primary-hover: #1d4ed8;

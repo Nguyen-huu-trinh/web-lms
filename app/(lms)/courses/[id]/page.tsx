@@ -1,7 +1,7 @@
 import { createLearningReader } from "@/lib/cache/learning";
 import { requireUser } from "@/services/auth";
 import { createCourseReader } from "@/repositories/lms";
-import { allRows } from "@/repositories/pagination";
+import { listGrades } from "@/repositories/lms";
 import { isUuid } from "@/lib/learning";
 import { DeniedDialog } from "@/components/learning/denied-dialog";
 import { CourseView } from "@/components/learning/course-view";
@@ -19,7 +19,7 @@ export default async function CoursePage({ params, searchParams }: { params: Pro
   void content.catch(() => {});
   const [context, grades] = await Promise.all([
     reader.teacher(course.teacher_id),
-    allRows((a,b) => client.from("grades").select("*").order("order_index").order("name").order("code").range(a,b)),
+    listGrades(client, read),
   ]);
   if (!context) return <DeniedDialog />;
   return <CourseView {...context} course={course} grades={grades} content={content} admin={profile.role === "ADMIN"} />;
