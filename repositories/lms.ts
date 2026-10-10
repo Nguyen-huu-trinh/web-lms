@@ -163,8 +163,9 @@ export async function lessonContent(client: Client, lessonId: string, profile: P
   const course = await findCourse(client, chapter.course_id);
   if (!course) return null;
   const [content, context, materials] = await Promise.all([
-    courseContent(client, course.id, profile.id, course, read),
-    teacherContext(client, course.teacher_id, profile),
+    // The course above was just authorized through RLS in this request.
+    readCourseContent(client, course, profile.id, read),
+    teacherContext(client, course.teacher_id, profile, read),
     read("lesson:materials:" + lesson.id, () => allRows((a,b) => client.from("materials").select("*").eq("lesson_id", lesson.id).order("order_index").order("id").range(a,b))),
   ]);
   if (!content || !context) return null;

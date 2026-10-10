@@ -2,11 +2,11 @@
 import { useState, type ComponentProps } from "react";
 import Link, { useLinkStatus } from "next/link";
 
-type Props = ComponentProps<typeof Link>;
-export function NavigationLink({ children, className, prefetch, onMouseEnter, onFocus, ...props }: Props) {
+type Props = ComponentProps<typeof Link> & { intentOnly?: boolean };
+export function NavigationLink({ children, className, prefetch, intentOnly = false, onMouseEnter, onFocus, ...props }: Props) {
   const [intent, setIntent] = useState(false);
   return <Link {...props} className={[className, "navigation-link"].filter(Boolean).join(" ")}
-    prefetch={prefetch ?? (intent ? true : null)}
+    prefetch={prefetch ?? (intent ? true : intentOnly ? false : null)}
     onMouseEnter={(event) => { setIntent(true); onMouseEnter?.(event); }}
     onFocus={(event) => { setIntent(true); onFocus?.(event); }}>
     {children}<NavigationFeedback />

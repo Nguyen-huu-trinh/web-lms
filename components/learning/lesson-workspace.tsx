@@ -1,5 +1,7 @@
 "use client";
 import { NavigationLink as Link } from "@/components/ui/navigation-link";
+import { LearningPrefetch } from "./learning-prefetch";
+import { nextLessonRoutes } from "@/lib/learning-prefetch";
 import styles from "./lesson-workspace.module.css";
 import { useActionState, useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";
@@ -27,6 +29,7 @@ export function LessonWorkspace({ lesson, materials, content, student, materialT
   const position = orderedLessons.findIndex((item) => item.id === lesson.id);
   const next = orderedLessons[position + 1];
   return <main className={styles.workspace}>
+    <LearningPrefetch routes={nextLessonRoutes(content.chapters, content.lessons, completed, lesson.id)} />
     <header className={styles.topbar}><Link href={`/courses/${content.course.id}`} className={styles.back} aria-label="Về khóa học"><Icon name="chevron" /></Link><h1>{lesson.title}</h1><div className={styles.topActions}><span className={styles.position}>Bài {position + 1}/{orderedLessons.length}</span>{student && <form action={action}><input type="hidden" name="lesson_id" value={lesson.id} /><button className={done ? "button completed-button" : "button"} disabled={done || pending}>{done ? <><Icon name="check" /> Đã hoàn thành</> : pending ? <><span className="spinner" aria-hidden="true" /> Đang lưu…</> : <><Icon name="check" /> Hoàn thành</>}</button>{state.error && <p className="form-error" role="alert">{state.error}</p>}{done && <p className="sr-only" role="status">Đã hoàn thành bài học.</p>}</form>}
 {next ? <Link className={styles.next} href={`/lessons/${next.id}`}>Bài tiếp <Icon name="arrow" /></Link> : <Link className={styles.next} href={`/courses/${content.course.id}`}>Về khóa học</Link>}</div></header>
     <div className={styles.body}><section className={styles.stage}>

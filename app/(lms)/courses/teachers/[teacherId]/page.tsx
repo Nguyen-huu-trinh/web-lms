@@ -1,3 +1,4 @@
+import { LearningPrefetch } from "@/components/learning/learning-prefetch";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/learning/loading-skeleton";
 import type { Course } from "@/types/database";
@@ -60,13 +61,17 @@ async function TeacherCourseRows({ courses, progress: pendingProgress, admin, te
   courses: Course[]; progress: Promise<Awaited<ReturnType<typeof courseProgressSummaries>> | null>; admin: boolean; teacherId: string;
 }) {
   const progress = await pendingProgress;
-  return <ul className={styles.courses}>{courses.map((course,index) => {
+  const prioritized = [...courses].sort((a, b) => {
+    const active = (id: string) => { const p = progress?.[id]; return p && p.count > 0 && p.percent < 100 ? 1 : 0; };
+    return active(b.id) - active(a.id);
+  });
+  return <><LearningPrefetch allCourses routes={admin ? [] : prioritized.map(course => `/courses/${course.id}`)} /><ul className={styles.courses}>{courses.map((course,index) => {
           const summary = progress?.[course.id];
           const started = Boolean(summary && summary.count > 0 && summary.percent < 100);
           return <li key={course.id} className={styles.course} data-started={started} data-state={summary?.percent === 100 ? "review" : started ? "continue" : "new"}>
-            <Link className={styles.courseLink} prefetch={index < 3 ? true : undefined} href={`/courses/${course.id}`}><span className={styles.number}>{String(index + 1).padStart(2,"0")}</span><div className={styles.copy}><h3>{course.title}</h3>{course.description && <p>{course.description}</p>}{summary && summary.total > 0 && <p>{summary.count}/{summary.total} bài hoàn thành · {summary.percent}%</p>}</div></Link><div className={styles.courseActions}><Link prefetch={index < 3 ? true : undefined} href={`/courses/${course.id}`} className={styles.cta}>{summary?.percent === 100 ? "Ôn lại khóa học" : started ? "Tiếp tục học" : "Vào học"}<Icon name="arrow" /></Link>
+            <Link className={styles.courseLink} intentOnly href={`/courses/${course.id}`}><span className={styles.number}>{String(index + 1).padStart(2,"0")}</span><div className={styles.copy}><h3>{course.title}</h3>{course.description && <p>{course.description}</p>}{summary && summary.total > 0 && <p>{summary.count}/{summary.total} bài hoàn thành · {summary.percent}%</p>}</div></Link><div className={styles.courseActions}><Link intentOnly href={`/courses/${course.id}`} className={styles.cta}>{summary?.percent === 100 ? "Ôn lại khóa học" : started ? "Tiếp tục học" : "Vào học"}<Icon name="arrow" /></Link>
             {admin && <RecordControls iconOnly context={{entity:"courses",id:course.id,parentId:teacherId}} values={{title:course.title,description:course.description}} />}
             </div>
           </li>;
-        })}</ul>;
+        })}</ul></>;
 }

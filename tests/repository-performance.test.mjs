@@ -224,3 +224,27 @@ test("subject cache reduces repeat reads without caching teacher membership", as
   data.student_subject_access = [];
   assert.equal(await createCourseReader(client, profile, read).teacher("teacher"), null);
 });
+
+
+test("warm lesson navigation reuses outline, materials and subject with one live course lookup per visit", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  await courseContent(client, "course", "student", undefined, read);
+  calls.length = 0;
+  for (let i = 0; i < 2; i++) {
+    const result = await lessonContent(client, "lesson", profile, read);
+    assert.equal(result.content.percent, i === 0 ? 100 : 0);
+    data.user_progress = [];
+  }
+  assert.equal(calls.filter(name => name === "courses").length, 2);
+  // Only the current chapter/lesson lookup; the full outline is already warm.
+  assert.equal(calls.filter(name => name === "chapters").length, 2);
+  assert.equal(calls.filter(name => name === "lessons").length, 2);
+  assert.equal(calls.filter(name => name === "subjects").length, 1);
+  assert.equal(calls.filter(name => name === "materials").length, 1);
+  assert.equal(calls.filter(name => name === "user_progress").length, 2);
+  data.student_subject_access = [];
+  assert.equal(await lessonContent(client, "lesson", profile, read), null);
+});
