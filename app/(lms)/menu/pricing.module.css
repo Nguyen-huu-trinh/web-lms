@@ -78,7 +78,7 @@
 
 .title {
   margin: 0 0 0.3rem 0;
-  font-size: clamp(1.75rem, 3.2vw, 2.3rem);
+  font-size: clamp(1.6471rem, 3.0118vw, 2.1647rem);
   font-weight: 850;
   letter-spacing: -0.035em;
   line-height: 1.2;
@@ -145,7 +145,7 @@
 
 .panelHeader h2 {
   margin: 0 0 0.1rem 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 750;
   color: #0f172a;
 }
@@ -307,7 +307,7 @@
 
 .itemName {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 750;
   color: #0f172a;
   letter-spacing: -0.015em;
@@ -361,7 +361,7 @@
 }
 
 .priceNumber {
-  font-size: clamp(1.25rem, 2vw, 1.45rem);
+  font-size: clamp(1.1765rem, 1.8824vw, 1.3647rem);
   font-weight: 850;
   letter-spacing: -0.03em;
   color: #0d9488; /* Màu xanh ngọc lục bảo sắc sảo, cao cấp */
@@ -405,7 +405,7 @@
 
 .empty h3 {
   margin: 0 0 0.3rem 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 750;
   color: #1e293b;
 }
@@ -479,7 +479,7 @@
   }
 
   .priceNumber {
-    font-size: 1.15rem;
+    font-size: 1.0824rem;
   }
 
   .pricePeriod {

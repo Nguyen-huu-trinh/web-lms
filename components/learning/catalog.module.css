@@ -19,7 +19,7 @@
 }
 
 .catalog :global(.heading-symbol) { display: none; }
-.catalog :global(.page-heading h1) { font-size: 28px; }
+.catalog :global(.page-heading h1) { font-size: 26px; }
 
 .catalog :global(.filter-tabs) {
   gap: 12px;
@@ -144,7 +144,7 @@
 .catalog :global(.selection-item.active .selection-icon) { color: #fff; background: #ffffff30; }
 .catalog :global(.section-heading) { padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid #f0f2f7; }
 .catalog :global(.section-heading .eyebrow) { font-size: 14px; letter-spacing: .035em; }
-.catalog :global(.section-heading h2) { font-size: clamp(24px, 2vw, 28px); line-height: 1.25; font-weight: 800; margin: 4px 0; }
+.catalog :global(.section-heading h2) { font-size: clamp(23px, 1.8824vw, 26px); line-height: 1.25; font-weight: 800; margin: 4px 0; }
 .catalog :global(.teacher-list) { gap: 8px; }
 .catalog :global(.teacher-list > li) { border-color: #e0e6f0; box-shadow: 0 2px 3px #0f172a04; }
 .catalog :global(.teacher-row) { gap: 12px; min-height: 48px; padding: 4px 10px; }
@@ -155,12 +155,12 @@
   border-radius: 15px;
   color: #fff;
   background: var(--catalog-gradient);
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 800;
   box-shadow: 0 7px 12px #0f172a15;
 }
 .catalog :global(.teacher-list > li:nth-child(even) .teacher-avatar) { background: linear-gradient(135deg, #2874b8, #3585bf); }
-.catalog :global(.teacher-row strong) { font-size: 17px; font-weight: 750; }
+.catalog :global(.teacher-row strong) { font-size: 16px; font-weight: 750; }
 .catalog :global(.teacher-action) {
   display: inline-flex;
   align-items: center;
@@ -212,7 +212,7 @@
   .catalog :global(.filter-tabs a) { flex: 1; padding: 12px; font-size: 13px; border-radius: 16px; }
   .catalog :global(.teacher-row) { gap: 8px; padding: 4px 10px; }
   .catalog :global(.teacher-avatar) { width: 32px; height: 32px; border-radius: 12px; }
-  .catalog :global(.teacher-row strong) { font-size: 17px; }
+  .catalog :global(.teacher-row strong) { font-size: 16px; }
   .catalog :global(.teacher-action) { width: 100%; }
 }
 
@@ -229,7 +229,7 @@
 
 .subjectTitle { min-width: 0; }
 .subjectTitle > p { margin: 0; font-size: 12px; }
-.subjectTitle > h2 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 800; overflow-wrap: anywhere; }
+.subjectTitle > h2 { margin: 0; font-size: 23px; line-height: 1.2; font-weight: 800; overflow-wrap: anywhere; }
 .subjectDescription { flex-basis: 100%; margin: 0; color: #64748b; font-size: 14px; }
 
 .catalog .subjectHeader :global(.admin-controls) {
@@ -272,7 +272,7 @@
 .catalog :global(.progress-symbol) { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; border-radius: 12px; color: #2563b8; background: #dcecff; }
 .catalog :global(.progress-heading h2) { margin: 0; font-size: 16px; font-weight: 750; color: #1e3a5f; }
 .catalog :global(.progress-heading p) { margin: 3px 0 0; font-size: 14px; line-height: 1.4; color: #475569; }
-.catalog :global(.progress-percent) { font-size: 30px; line-height: 1; letter-spacing: -.04em; }
+.catalog :global(.progress-percent) { font-size: 28px; line-height: 1; letter-spacing: -.04em; }
 .catalog :global(.progress-percent > span) { font-size: 15px; margin-left: 2px; }
 .catalog :global(.course-progress-featured progress) { display: block; width: 100%; height: 8px; margin: 14px 0 8px; overflow: hidden; border: 0; border-radius: 99px; appearance: none; background: #dce7f5; }
 .catalog :global(.course-progress-featured progress::-webkit-progress-bar) { background: #dce7f5; border-radius: 99px; }
@@ -304,7 +304,7 @@
 .catalog :global(.student-curriculum .chapter[open] > summary) { margin-bottom: 0; border-bottom: 1px solid #edf1f5; background: #f8fafc; }
 .catalog :global(.student-curriculum .chapter > summary:hover) { background: #f1f5f9; }
 .catalog :global(.student-curriculum .chapter-number) { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; padding: 0; border: 1px solid #dbeafe; border-radius: 11px; color: #2563b8; background: #eff6ff; font-size: 14px; font-weight: 750; }
-.catalog :global(.student-curriculum summary strong) { color: #1e293b; font-size: 17px; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.catalog :global(.student-curriculum summary strong) { color: #1e293b; font-size: 16px; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
 .catalog :global(.student-curriculum summary small) { font-size: 14px; color: #475569; margin-top: 4px; }
 .catalog :global(.chapter-meta-dot) { margin: 0 7px; color: #94a3b8; }
 .catalog :global(.student-curriculum .chapter > ul) { display: grid; gap: 4px; padding: 8px; }
@@ -467,26 +467,26 @@
 
 /* Course content aligned with the catalog typography. */
 .catalog.singleCourse :global(.section-heading .eyebrow) { font-size: 14.3px; }
-.catalog.singleCourse :global(.section-heading h2) { font-size: clamp(22px, 1.8vw, 25px); }
+.catalog.singleCourse :global(.section-heading h2) { font-size: clamp(21px, 1.6941vw, 24px); }
 .catalog.singleCourse :global(.course-progress-featured) { padding: 14px; margin-bottom: 14px; }
 .catalog.singleCourse :global(.progress-heading) { gap: 9px; }
 .catalog.singleCourse :global(.progress-symbol) { width: 34px; height: 34px; border-radius: 10px; }
 .catalog.singleCourse :global(.progress-symbol .icon) { width: 18px; height: 18px; }
-.catalog.singleCourse :global(.progress-heading h2) { font-size: 17px; }
+.catalog.singleCourse :global(.progress-heading h2) { font-size: 16px; }
 .catalog.singleCourse :global(.progress-heading p),
 .catalog.singleCourse :global(.progress-stats) { font-size: 15px; }
-.catalog.singleCourse :global(.progress-percent) { font-size: 27px; }
+.catalog.singleCourse :global(.progress-percent) { font-size: 25px; }
 .catalog.singleCourse :global(.progress-percent > span) { font-size: 14.3px; }
 .catalog.singleCourse :global(.course-progress-featured progress) { height: 7px; margin: 12px 0 7px; }
 .catalog.singleCourse :global(.next-lesson-button) { min-height: 36px; padding: 7px 12px; margin-top: 10px; font-size: 15.4px; }
 .catalog.singleCourse :global(.student-curriculum .chapter) { margin: 10px 0; border-radius: 14px; }
 .catalog.singleCourse :global(.student-curriculum .chapter > summary) { padding: 12px 14px; gap: 10px; }
 .catalog.singleCourse :global(.student-curriculum .chapter-number) { width: 32px; height: 32px; font-size: 14.3px; border-radius: 9px; }
-.catalog.singleCourse :global(.student-curriculum summary strong) { font-size: 18px; }
+.catalog.singleCourse :global(.student-curriculum summary strong) { font-size: 17px; }
 .catalog.singleCourse :global(.student-curriculum summary small) { font-size: 15px; margin-top: 4px; }
 .catalog.singleCourse :global(.student-curriculum .chapter > ul) { padding: 6px; }
 .catalog.singleCourse :global(.student-curriculum .lesson-link) { min-height: 48px; padding: 8px 10px; gap: 10px; }
-.catalog.singleCourse :global(.student-curriculum .lesson-title) { font-size: 17px; }
+.catalog.singleCourse :global(.student-curriculum .lesson-title) { font-size: 16px; }
 .catalog.singleCourse :global(.student-curriculum .lesson-check) { width: 28px; height: 28px; border-radius: 8px; }
 .catalog.singleCourse :global(.student-curriculum .lesson-check .icon) { width: 15px; height: 15px; }
 .catalog.singleCourse :global(.student-curriculum .next-lesson-label) { padding: 3px 7px; font-size: 12.1px; }

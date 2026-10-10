@@ -16,7 +16,7 @@
 .gradeTab > a { display: block; min-width: 0; }
 .gradeTab:has(details) > a { padding-right: 8px; }
 .gradeMenu { position: relative; flex-shrink: 0; }
-.gradeMenu summary { list-style: none; font-size: 23px; font-weight: 800; line-height: 1; padding: 9px 12px; border-radius: 12px; cursor: pointer; }
+.gradeMenu summary { list-style: none; font-size: 22px; font-weight: 800; line-height: 1; padding: 9px 12px; border-radius: 12px; cursor: pointer; }
 .gradeMenu summary::-webkit-details-marker { display: none; }
 .gradeMenu summary:hover { background: #94a3b822; }
 .gradeMenuContent { position: absolute; top: calc(100% + 12px); right: 0; z-index: 20; padding: 12px; min-width: 160px; max-width: 260px; border: 1px solid #dfe6f1; border-radius: 16px; background: white; color: #42516b; box-shadow: 0 8px 24px #17203318; }
@@ -45,17 +45,17 @@
 .panel[hidden] { display: none; }
 .heading { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; background: white; border: 1px solid #dfe6f1; border-radius: 18px; padding: 14px 20px; min-height: 70px; box-shadow: 0 2px 2px #17203304; margin-bottom: 16px; }
 .heading > :global(.icon) { width: 26px; height: 26px; color: #8f9bbe; }
-.subjectSymbol { font-size: 23px; width: 27px; }
+.subjectSymbol { font-size: 22px; width: 27px; }
 .headingCount { margin-left: auto; font-size: 12px; font-weight: 600; color: #2862ff; background: #eff6ff; border: 1px solid #d6e6ff; border-radius: 30px; padding: 4px 12px; }
-.heading h1 { font-size: 18px; font-weight: 800; line-height: 1.3; text-transform: uppercase; }
+.heading h1 { font-size: 17px; font-weight: 800; line-height: 1.3; text-transform: uppercase; }
 .heading p { color: #869ab9; font-size: 12px; margin: 2px 0 0; }
 .cards { list-style: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; padding: 0; }
 .card { background: white; border: 1px solid #dfe6f1; border-radius: 24px; padding: 20px; position: relative; box-shadow: 0 2px 3px #17203305; min-width: 0; }
 .card[data-featured=true] { border-color: #4480ff; box-shadow: 0 0 0 1px #4480ff; background: linear-gradient(135deg,#fff,#f6faff); }
 .identity { display: flex; gap: 14px; align-items: center; min-height: 48px; padding-right: 28px; }
-.identity h2 { font-size: 17px; letter-spacing: -.4px; font-weight: 750; line-height: 1.35; }
+.identity h2 { font-size: 16px; letter-spacing: -.4px; font-weight: 750; line-height: 1.35; }
 .identity p { color: #7485a1; font-size: 12px; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.avatar { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 16px; flex: 0 0 auto; background: #dce9ff; color: #2853d9; font-size: 18px; font-weight: 800; }
+.avatar { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 16px; flex: 0 0 auto; background: #dce9ff; color: #2853d9; font-size: 17px; font-weight: 800; }
 .progress { margin: 16px 0 12px; padding-bottom: 16px; border-bottom: 1px solid #eef2f7; font-size: 12px; font-weight: 500; color: #7d8da7; }
 .progress label { display: flex; justify-content: space-between; gap: 8px; }
 .progress progress { width: 100%; height: 8px; display: block; border: 0; border-radius: 20px; overflow: hidden; background: #eef2f8; margin-top: 7px; }
@@ -135,14 +135,14 @@
   .heading h1 { font-size: 16px; overflow-wrap: anywhere; }
   .heading p { font-size: 12px; }
   .headingCount { display: none; }
-  .subjectSymbol { width: 24px; font-size: 23px; }
+  .subjectSymbol { width: 24px; font-size: 22px; }
   .cards { grid-template-columns: 1fr; gap: 12px; }
   .card { padding: 16px; border-radius: 18px; }
   .identity { gap: 12px; min-height: 48px; padding-right: 30px; }
   .identity > div { min-width: 0; }
   .identity h2 { font-size: 16px; letter-spacing: -.2px; overflow-wrap: anywhere; }
   .identity p { font-size: 12px; margin-top: 3px; }
-  .avatar { width: 48px; height: 48px; border-radius: 15px; font-size: 19px; }
+  .avatar { width: 48px; height: 48px; border-radius: 15px; font-size: 18px; }
   .accessStar { width: 30px; height: 30px; top: 14px; right: 12px; }
   .accessStar :global(.icon) { width: 18px; height: 18px; }
   .progress { margin: 14px 0 12px; padding-bottom: 12px; font-size: 12px; }
@@ -172,9 +172,9 @@
 .teacherPanel { min-width: 0; background: white; border: 1px solid #e3e7ee; border-radius: 24px; padding: 18px 20px; box-shadow: 0 1px 3px #17203305; }
 .panelToolbar { display: flex; align-items: center; gap: 16px; padding-bottom: 12px; margin-bottom: 8px; border-bottom: 1px solid #f0f2f5; }
 .heading { flex: 1; min-width: 0; min-height: 30px; padding: 0; margin: 0; border: 0; border-radius: 0; box-shadow: none; gap: 10px; }
-.heading h1 { font-size: 18px; }
+.heading h1 { font-size: 17px; }
 .heading p { font-size: 12.1px; margin-top: 0; }
-.subjectSymbol { width: 24px; font-size: 21px; }
+.subjectSymbol { width: 24px; font-size: 20px; }
 .headingCount { display: none; }
 .teacherSearch { display: flex; align-items: center; gap: 6px; width: 220px; max-width: 100%; padding: 0 8px; border: 1px solid #e5e7eb; border-radius: 11px; background: #f9fafc; color: #9aa5b3; }
 .teacherSearch > :global(.icon) { width: 13px; height: 13px; flex-shrink: 0; }
@@ -189,7 +189,7 @@
 .accessStar :global(.icon) { width: 17px; height: 17px; }
 .identity { min-height: 32px; gap: 12px; padding-right: 0; }
 .avatar { width: 32px; height: 32px; font-size: 14px; border-radius: 10px; background: #285ff3; color: #fff; box-shadow: none; }
-.identity h2 { font-size: 17px; letter-spacing: -.2px; line-height: 1.35; }
+.identity h2 { font-size: 16px; letter-spacing: -.2px; line-height: 1.35; }
 .identity p { font-size: 12.1px; color: #a0a9b4; margin-top: 1px; -webkit-line-clamp: 1; }
 .progress { display: flex; align-items: center; justify-content: flex-end; gap: 7px; margin: 0; padding: 0; border: 0; font-size: 12.1px; }
 .progressValue { order: 2; white-space: nowrap; color: #a0a9b4; }
@@ -215,7 +215,7 @@
   .teacherSearch { width: 100%; }
   .home .teacherPanel .teacherSearch input[type=search] { min-height: 40px; font-size: 16px; }
   .card { grid-template-columns: 16px minmax(0, 1fr) auto; gap: 8px; padding: 12px 0; }
-  .identity h2 { font-size: 17px; }
+  .identity h2 { font-size: 16px; }
   .identity p { font-size: 12.1px; }
   .progress { grid-column: 2; grid-row: auto; justify-content: flex-start; padding-left: 38px; }
   .enter { grid-column: 3; grid-row: span 2; min-height: 44px; font-size: 12.1px; }

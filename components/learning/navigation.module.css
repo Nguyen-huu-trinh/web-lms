@@ -2,7 +2,7 @@
 @media (max-width: 600px) {
   .header { position: relative; }
   .header :global(.site-nav) { gap: 10px; padding: 10px 12px; min-height: 0; }
-  .header :global(.brand) { gap: 8px; font-size: 19px; }
+  .header :global(.brand) { gap: 8px; font-size: 18px; }
   .header :global(.brand-caption) { font-size: 8.8px; margin-top: 3px; }
   .header :global(.user-name) { display: none; }
   .header :global(.user-menu summary) { padding: 4px; min-width: 44px; min-height: 44px; }
@@ -17,7 +17,7 @@
 /* Match the compact catalog density in the desktop header. */
 @media (min-width: 901px) {
   .header :global(.site-nav) { min-height: 64px; padding: 8px 32px; gap: 24px; }
-  .header :global(.brand) { font-size: 18px; gap: 10px; }
+  .header :global(.brand) { font-size: 17px; gap: 10px; }
   .header :global(.brand-icon) { width: 36px; height: 36px; }
   .header :global(.brand-icon .icon) { width: 18px; height: 18px; }
   .header :global(.brand-caption) { font-size: 9.9px; margin-top: 4px; }
