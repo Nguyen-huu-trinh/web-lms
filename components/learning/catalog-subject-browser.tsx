@@ -20,6 +20,9 @@ export function CatalogSubjectBrowser({ subjects, role, search, grades, gradeAct
   const mode = mine ? "mine" : "all";
   const activeKey = mode + ":" + selected;
   const [visited, setVisited] = useState(() => new Set([activeKey]));
+  // Header tabs and browser Back/Forward also change searchParams. Retain every
+  // visited panel so its quick search and controls survive those transitions.
+  if (selected && !visited.has(activeKey)) setVisited(previous => new Set([...previous, activeKey]));
   const hrefFor = (filter: string, subject?: string, nextGrade = grade) => {
     const query = new URLSearchParams({ filter, grade: nextGrade });
     if (search) query.set("q", search);

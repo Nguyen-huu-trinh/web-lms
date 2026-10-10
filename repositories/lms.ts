@@ -148,10 +148,31 @@ export function createCourseReader(client: Client, profile: Profile, read: DataR
       const course = await getCourse(courseId);
       return course ? readCourseContent(client, course, profile.id, read) : null;
     },
+    async curriculum(teacherId: string) {
+      if (!await getTeacher(teacherId)) return null;
+      const rows = await this.courses(teacherId);
+      const chapters = await byIds(rows.map(course => course.id), (ids, a, b) => client.from("chapters").select("*").in("course_id", ids).order("order_index").order("id").range(a, b));
+      const lessons = await byIds(chapters.map(chapter => chapter.id), (ids, a, b) => client.from("lessons").select("*").in("chapter_id", ids).order("order_index").order("id").range(a, b));
+      const lessonIds = lessons.map(lesson => lesson.id);
+      const [materials, progress] = await Promise.all([
+        byIds(lessonIds, (ids, a, b) => client.from("materials").select("*").in("lesson_id", ids).order("order_index").order("id").range(a, b)),
+        byIds(lessonIds, (ids, a, b) => client.from("user_progress").select("lesson_id").eq("student_id", profile.id).eq("is_completed", true).in("lesson_id", ids).order("id").range(a, b)),
+      ]);
+      const completed = new Set(progress.map(row => row.lesson_id));
+      const contents = rows.map(course => {
+        const courseChapters = chapters.filter(chapter => chapter.course_id === course.id);
+        const chapterIds = new Set(courseChapters.map(chapter => chapter.id));
+        const courseLessons = lessons.filter(lesson => chapterIds.has(lesson.chapter_id));
+        const done = courseLessons.filter(lesson => completed.has(lesson.id)).map(lesson => lesson.id);
+        return { course, chapters: courseChapters, lessons: courseLessons, completed: done, ...progressSummary(courseLessons.map(lesson => lesson.id), done) };
+      });
+      return { contents, materials };
+    },
   };
 }
 
 export type CourseContent = NonNullable<Awaited<ReturnType<typeof courseContent>>>;
+export type TeacherCurriculum = NonNullable<Awaited<ReturnType<ReturnType<typeof createCourseReader>["curriculum"]>>>;
 
 export async function lessonContent(client: Client, lessonId: string, profile: Profile, read: DataReader = uncached) {
   const { data: lesson, error } = await client.from("lessons").select("*").eq("id", lessonId).maybeSingle();

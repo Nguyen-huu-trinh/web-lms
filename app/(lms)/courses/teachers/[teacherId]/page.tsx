@@ -1,11 +1,11 @@
-import { LearningPrefetch } from "@/components/learning/learning-prefetch";
+import { CourseDetail } from "@/components/learning/course-detail";
+import { TeacherWorkspace } from "@/components/learning/teacher-workspace";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/learning/loading-skeleton";
 import type { Course } from "@/types/database";
-import { redirect } from "next/navigation";
 import { createLearningReader } from "@/lib/cache/learning";
 import { requireUser } from "@/services/auth";
-import { createCourseReader, courseProgressSummaries } from "@/repositories/lms";
+import { createCourseReader, type courseProgressSummaries } from "@/repositories/lms";
 import { listGrades } from "@/repositories/lms";
 import { isUuid } from "@/lib/learning";
 import { DeniedDialog } from "@/components/learning/denied-dialog";
@@ -15,7 +15,7 @@ import { Icon } from "@/components/ui/icon";
 import { RecordControls } from "@/components/admin/record-controls";
 import styles from "@/components/learning/teacher-profile.module.css";
 
-export default async function TeacherPage({ params, searchParams }: { params: Promise<{ teacherId: string }>; searchParams: Promise<{ course?: string | string[] }> }) {
+export default async function TeacherPage({ params, searchParams }: { params: Promise<{ teacherId: string }>; searchParams: Promise<{ course?: string | string[]; lesson?: string | string[] }> }) {
   const { client, profile, sessionId } = await requireUser();
   const read = createLearningReader(profile, sessionId);
   const [{ teacherId }, query] = await Promise.all([params, searchParams]);
@@ -25,17 +25,14 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
     reader.teacher(teacherId), reader.courses(teacherId), listGrades(client, read),
   ]);
   if (!context) return <DeniedDialog />;
-  // Keep old deep links working while course content now has its own page.
-  if (query.course) {
-    const selected = courses.find((course) => course.id === query.course);
-    if (!selected) return <DeniedDialog />;
-    redirect(`/courses/${selected.id}`);
-  }
   const { subject, teacher } = context;
   const admin = profile.role === "ADMIN";
-  const progress = admin ? Promise.resolve(null) : courseProgressSummaries(client, courses.map(course => course.id), profile.id).catch(() => null);
+  const curriculum = await reader.curriculum(teacherId);
+  if (!curriculum) return <DeniedDialog />;
+  if (query.lesson !== undefined && (typeof query.lesson !== "string" || !isUuid(query.lesson))) return <DeniedDialog />;
+  const progress = Promise.resolve(curriculum ? Object.fromEntries(curriculum.contents.map(content => [content.course.id, { count: content.count, total: content.total, percent: content.percent }])) : null);
   const back = "/courses?" + new URLSearchParams({grade: subject.grade, subject: subject.id, filter: "all"});
-  return <main className={styles.page}>
+  const overview = <main className={styles.page}>
     <nav className={styles.grades} aria-label="Chọn khối">{grades.map((grade) => <Link key={grade.code} href={"/courses?" + new URLSearchParams({grade:grade.code,filter:"all"})} aria-current={grade.code === subject.grade ? "page" : undefined}>{grade.name}</Link>)}</nav>
     <div className={styles.content}>
     <nav className={styles.breadcrumb} aria-label="Đường dẫn"><Link prefetch={true} href={back}><Icon name="arrow" />Quay lại DS môn</Link><Icon name="chevron" /><strong>{teacher.name}</strong></nav>
@@ -55,17 +52,18 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
     </div>
     </div>
   </main>;
+  return <TeacherWorkspace key={`${profile.id}:${sessionId}:${teacherId}`} curriculum={curriculum} teacher={teacher} subject={subject} grades={grades} overview={overview} admin={admin}
+    coursePanels={admin ? Object.fromEntries(curriculum.contents.map(content => [content.course.id, <CourseDetail key={content.course.id} content={content} admin />])) : undefined}
+    materialActions={admin ? Object.fromEntries(curriculum.materials.map(material => [material.id, <RecordControls key={material.id} iconOnly context={{entity:"materials",id:material.id,parentId:material.lesson_id}} values={{title:material.title,type:material.type,provider:material.provider,url:material.url,order_index:material.order_index}} />])) : undefined}
+    materialTools={admin ? Object.fromEntries(curriculum.contents.flatMap(content => content.lessons.map(lesson => [lesson.id, <RecordControls key={lesson.id} context={{entity:"materials",parentId:lesson.id}} />]))) : undefined}
+  />;
 }
 
 async function TeacherCourseRows({ courses, progress: pendingProgress, admin, teacherId }: {
   courses: Course[]; progress: Promise<Awaited<ReturnType<typeof courseProgressSummaries>> | null>; admin: boolean; teacherId: string;
 }) {
   const progress = await pendingProgress;
-  const prioritized = [...courses].sort((a, b) => {
-    const active = (id: string) => { const p = progress?.[id]; return p && p.count > 0 && p.percent < 100 ? 1 : 0; };
-    return active(b.id) - active(a.id);
-  });
-  return <><LearningPrefetch allCourses routes={admin ? [] : prioritized.map(course => `/courses/${course.id}`)} /><ul className={styles.courses}>{courses.map((course,index) => {
+  return <><ul className={styles.courses}>{courses.map((course,index) => {
           const summary = progress?.[course.id];
           const started = Boolean(summary && summary.count > 0 && summary.percent < 100);
           return <li key={course.id} className={styles.course} data-started={started} data-state={summary?.percent === 100 ? "review" : started ? "continue" : "new"}>

@@ -52,6 +52,39 @@ test("known course avoids duplicate metadata reads and retains completion", asyn
   assert.deepEqual(result.completed, ["lesson"]);
 });
 
+test("teacher curriculum includes every course, lesson, material and isolated progress in one load", async () => {
+  const data = structuredClone(tables);
+  data.courses.push({ id: "empty", teacher_id: "teacher", title: "Empty" }, { id: "other", teacher_id: "other-teacher" });
+  data.chapters.push({ id: "other-chapter", course_id: "other" });
+  data.lessons.push({ id: "other-lesson", chapter_id: "other-chapter" });
+  data.materials.push({ id: "other-material", lesson_id: "other-lesson" });
+  data.user_progress.push({ id: "other-progress", student_id: "another-student", lesson_id: "lesson-1", is_completed: true });
+  for (let i = 0; i < 1100; i++) {
+    data.lessons.push({ id: `lesson-${i}`, chapter_id: "chapter", order_index: i });
+    data.materials.push({ id: `material-${i}`, lesson_id: `lesson-${i}`, order_index: i });
+  }
+  const { client, calls } = fixture(data);
+  const reader = createCourseReader(client, { id: "student", role: "STUDENT" });
+  await reader.courses("teacher");
+  const result = await reader.curriculum("teacher");
+  assert.equal(result.contents.length, 2);
+  assert.equal(result.contents[0].lessons.length, 1101);
+  assert.equal(result.materials.length, 1101);
+  assert.deepEqual(result.contents[0].completed, ["lesson"]);
+  assert.equal(result.contents[1].total, 0);
+  assert.equal(calls.filter(name => name === "courses").length, 1);
+  assert.ok(result.materials.every(material => material.id !== "other-material"));
+});
+
+test("teacher curriculum refuses revoked grants and propagates material failures instead of displaying partial content", async () => {
+  const profile = { id: "student", role: "STUDENT" };
+  const denied = fixture({ ...tables, student_subject_access: [] });
+  assert.equal(await createCourseReader(denied.client, profile).curriculum("teacher"), null);
+  assert.ok(!denied.calls.includes("materials"));
+  const failed = fixture(tables, "materials");
+  await assert.rejects(createCourseReader(failed.client, profile).curriculum("teacher"));
+});
+
 test("batched progress stays isolated by course and handles empty courses", async () => {
   const { client } = fixture(tables);
   const result = await courseProgressSummaries(client, ["course", "empty"], "student");

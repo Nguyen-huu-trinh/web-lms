@@ -11,7 +11,8 @@ const source = text => ({ url: "data:text/javascript," + encodeURIComponent(text
 registerHooks({
   resolve(specifier, context, next) {
     if (context.parentURL === url) {
-      if (specifier === "react") return source('export const useEffect = fn => globalThis.__prefetchTest.cleanups.push(fn());');
+      if (specifier === "react") return source('export const useContext = () => globalThis.__prefetchTest.local; export const useEffect = fn => globalThis.__prefetchTest.cleanups.push(fn());');
+      if (specifier === "./local-learning-context") return source('export const LocalLearningContext = {};');
       if (specifier === "next/navigation") return source('export const useRouter = () => ({ prefetch: (...args) => globalThis.__prefetchTest.calls.push(args) });');
       if (specifier === "@/lib/learning-prefetch") return { url: new URL("../lib/learning-prefetch.ts", import.meta.url).href, shortCircuit: true };
       if (specifier.startsWith("next/dist/")) return next(specifier + ".js", context);
@@ -26,6 +27,7 @@ registerHooks({
 const { LearningPrefetch } = await import(url);
 
 function environment(t) {
+  state.local = null;
   state.calls.length = 0;
   state.cleanups.length = 0;
   const timers = [];
@@ -48,6 +50,14 @@ test("teacher warms every course using FULL payloads, starting immediately and d
   assert.deepEqual(state.calls, ["a", "b", "c"].map(id => [`/courses/${id}`, { kind: "full" }]));
   state.cleanups.forEach(cleanup => cleanup());
   assert.ok(timers.every(timer => timer.cancelled));
+});
+
+test("loaded teacher workspace never schedules additional route fetches", t => {
+  const { timers } = environment(t);
+  state.local = {};
+  LearningPrefetch({ routes: ["/lessons/a", "/lessons/b"] });
+  assert.equal(timers.length, 0);
+  assert.deepEqual(state.calls, []);
 });
 
 test("lesson warming remains bounded and respects visibility and network at execution time", t => {
