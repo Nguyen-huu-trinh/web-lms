@@ -248,3 +248,10 @@ progress::-moz-progress-bar { background: linear-gradient(90deg,#2563eb,#6366f1)
   .site-nav .header-search + .user-menu { margin-left: 0; }
   .site-nav .header-search input[type=search] { font-size: 16px; min-width: 0; }
 }
+
+/* Compact password form with full-sized inputs and actions. */
+.auth-card.password-card { padding: 28px; border-radius: 20px; }
+.password-card .auth-card-heading { margin-bottom: 20px; }
+.password-card .auth-card-heading h1 { font-size: 24px; }
+.password-card .auth-symbol { width: 44px; height: 44px; margin-bottom: 16px; border-radius: 14px; }
+@media (max-width: 480px) { .auth-card.password-card { padding: 24px; } }

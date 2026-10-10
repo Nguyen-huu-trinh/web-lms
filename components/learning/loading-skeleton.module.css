@@ -25,3 +25,5 @@
 
 .compactContent { gap: 14px; }
 .compactContent .progress, .compactContent .chapter { padding: 16px; gap: 14px; border-radius: 14px; }
+
+.catalogIdentity { gap: 5px; }

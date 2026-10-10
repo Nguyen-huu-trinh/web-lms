@@ -18,7 +18,7 @@ export function CatalogSkeleton() {
         </div>
         <div className={home.cards}>{Array.from({length: 12}, (_, i) => <div className={home.card} key={i}>
           <Skeleton width="14px" height={14} />
-          <div className={home.identity}><Skeleton width="32px" height={32} /><div className={s.copy}><Skeleton width="60%" height={14} /><Skeleton width="45%" height={11} /></div></div>
+          <div className={home.identity}><Skeleton width="30px" height={30} /><div className={`${s.copy} ${s.catalogIdentity}`}><Skeleton width="60%" height={14} /><Skeleton width="45%" height={11} /></div></div>
           <div className={home.progress}><Skeleton width="90px" height={6} /></div>
           <div className={home.enter}><Skeleton height={16} /></div>
         </div>)}</div>

@@ -466,7 +466,7 @@
 }
 
 /* Course content aligned with the catalog typography. */
-.catalog.singleCourse :global(.section-heading .eyebrow) { font-size: 14.3px; }
+.catalog.singleCourse :global(.section-heading .eyebrow) { font-size: 13px; }
 .catalog.singleCourse :global(.section-heading h2) { font-size: clamp(21px, 1.6941vw, 24px); }
 .catalog.singleCourse :global(.course-progress-featured) { padding: 14px; margin-bottom: 14px; }
 .catalog.singleCourse :global(.progress-heading) { gap: 9px; }
@@ -474,19 +474,19 @@
 .catalog.singleCourse :global(.progress-symbol .icon) { width: 18px; height: 18px; }
 .catalog.singleCourse :global(.progress-heading h2) { font-size: 16px; }
 .catalog.singleCourse :global(.progress-heading p),
-.catalog.singleCourse :global(.progress-stats) { font-size: 15px; }
+.catalog.singleCourse :global(.progress-stats) { font-size: 14px; }
 .catalog.singleCourse :global(.progress-percent) { font-size: 25px; }
-.catalog.singleCourse :global(.progress-percent > span) { font-size: 14.3px; }
+.catalog.singleCourse :global(.progress-percent > span) { font-size: 13px; }
 .catalog.singleCourse :global(.course-progress-featured progress) { height: 7px; margin: 12px 0 7px; }
-.catalog.singleCourse :global(.next-lesson-button) { min-height: 36px; padding: 7px 12px; margin-top: 10px; font-size: 15.4px; }
+.catalog.singleCourse :global(.next-lesson-button) { min-height: 36px; padding: 7px 12px; margin-top: 10px; font-size: 14px; }
 .catalog.singleCourse :global(.student-curriculum .chapter) { margin: 10px 0; border-radius: 14px; }
-.catalog.singleCourse :global(.student-curriculum .chapter > summary) { padding: 12px 14px; gap: 10px; }
-.catalog.singleCourse :global(.student-curriculum .chapter-number) { width: 32px; height: 32px; font-size: 14.3px; border-radius: 9px; }
-.catalog.singleCourse :global(.student-curriculum summary strong) { font-size: 17px; }
-.catalog.singleCourse :global(.student-curriculum summary small) { font-size: 15px; margin-top: 4px; }
+.catalog.singleCourse :global(.student-curriculum .chapter > summary) { padding: 10px 12px; gap: 10px; }
+.catalog.singleCourse :global(.student-curriculum .chapter-number) { width: 32px; height: 32px; font-size: 13px; border-radius: 9px; }
+.catalog.singleCourse :global(.student-curriculum summary strong) { font-size: 16px; }
+.catalog.singleCourse :global(.student-curriculum summary small) { font-size: 14px; margin-top: 4px; }
 .catalog.singleCourse :global(.student-curriculum .chapter > ul) { padding: 6px; }
-.catalog.singleCourse :global(.student-curriculum .lesson-link) { min-height: 48px; padding: 8px 10px; gap: 10px; }
-.catalog.singleCourse :global(.student-curriculum .lesson-title) { font-size: 16px; }
+.catalog.singleCourse :global(.student-curriculum .lesson-link) { min-height: 44px; padding: 7px 10px; gap: 10px; }
+.catalog.singleCourse :global(.student-curriculum .lesson-title) { font-size: 15px; }
 .catalog.singleCourse :global(.student-curriculum .lesson-check) { width: 28px; height: 28px; border-radius: 8px; }
 .catalog.singleCourse :global(.student-curriculum .lesson-check .icon) { width: 15px; height: 15px; }
 .catalog.singleCourse :global(.student-curriculum .next-lesson-label) { padding: 3px 7px; font-size: 12.1px; }

@@ -21,12 +21,12 @@
 .workspace :global(.video-selection select) { width: auto; flex: 1; margin: 0; min-height: 34px; padding: 5px 10px; color: #f1f5f9; background: #334155; border-color: #34445c; }
 .workspace :global(.lesson-panel) { position: static; display: flex; flex-direction: column; min-height: 0; border: 0; border-left: 1px solid #334155; border-radius: 0; background: #1e293b; box-shadow: none; }
 .workspace :global(.panel-tabs) { flex-shrink: 0; padding: 0; gap: 0; background: transparent; border-bottom: 1px solid #334155; }
-.workspace :global(.panel-tabs button) { min-height: 56px; color: #94a3b8; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; }
+.workspace :global(.panel-tabs button) { min-height: 48px; color: #94a3b8; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; }
 .workspace :global(.panel-tabs [aria-selected=true]) { color: #2563b8; border-bottom-color: #2563b8; background: #334155; box-shadow: none; }
 .workspace :global(.panel-tabs button span) { background: #334155; color: inherit; }
 .workspace :global(.lesson-panel [role=tabpanel]) { flex: 1; min-height: 0; max-height: none; overflow-y: auto; }
-.workspace :global(.panel-heading) { padding: 16px; }
-.workspace :global(.panel-heading strong) { font-size: 16px; }
+.workspace :global(.panel-heading) { padding: 12px 14px; }
+.workspace :global(.panel-heading strong) { font-size: 15px; }
 .workspace :global(.panel-heading small) { color: #94a3b8; }
 .workspace :global(.chapter) { background: #1e293b; border-color: #334155; box-shadow: none; }
 .workspace :global(.chapter summary:hover), .workspace :global(.chapter[open] > summary) { background: #29364b; }
@@ -162,8 +162,8 @@
 .workspace :global(:focus-visible) { outline-color: #fbbf24; }
 
 /* Compact resource rows: icon, title and action share one line. */
-.workspace :global(.material-list) { padding: 16px; gap: 14px; }
-.workspace :global(.material-list li) { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 16px 18px; }
+.workspace :global(.material-list) { padding: 12px; gap: 10px; }
+.workspace :global(.material-list li) { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 12px 14px; }
 .materialHeader { flex: 1; min-width: 0; gap: 14px; }
 .materialIcon, .materialIcon:not([data-type="video"]), .materialIcon[data-type="video"] { width: 24px; height: 24px; border-radius: 0; background: transparent; }
 .materialIcon :global(.icon) { width: 22px; height: 22px; }
@@ -182,3 +182,8 @@
 
 .topActions .next :global(.icon) { width: 14px; height: 14px; }
 @media (pointer: coarse) { .topActions :global(.button), .topActions .next { min-height: 44px; } }
+
+.workspace :global(.chapter > summary) { padding: 12px; gap: 10px; }
+.workspace :global(.chapter summary strong) { font-size: 14px; line-height: 1.4; }
+.workspace :global(.lesson-link) { min-height: 44px; padding: 8px 10px; }
+@media (pointer: coarse) { .workspace .materialFooter :global(.text-link), .back { min-height: 44px; min-width: 44px; } }
