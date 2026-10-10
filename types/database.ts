@@ -37,6 +37,7 @@ export type Database = {
       materials: Table<MaterialRow, "lesson_id" | "title" | "type" | "provider" | "url" | "order_index">;
       student_subject_access: Table<SubjectAccess, "student_id" | "subject_id", ProfileRelationship<"student_subject_access_student_id_fkey">>;
       student_teacher_access: Table<TeacherAccess, "student_id" | "teacher_id", ProfileRelationship<"student_teacher_access_student_id_fkey">>;
+      student_teacher_favorites: Table<{ student_id: string; teacher_id: string; created_at: string }, "student_id" | "teacher_id">;
       user_progress: Table<Progress, "student_id" | "lesson_id">;
       menus: Table<Menu, "name" | "price">;
       active_sessions: Table<ActiveSession, "user_id" | "session_id">;

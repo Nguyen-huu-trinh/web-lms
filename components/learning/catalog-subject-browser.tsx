@@ -5,6 +5,7 @@ import { isMyCoursesFilter } from "@/lib/catalog-search";
 import { selectedSubjectGrade, type SubjectGrade, type GradeOption } from "@/lib/admin-validation";
 import { subjectSymbol } from "@/lib/subject-symbol";
 import { GradeMenu } from "@/components/admin/grade-menu";
+import { FavoriteTeachersToolbar } from "./teacher-favorites";
 import { EmptyState } from "./shared";
 import styles from "./course-home.module.css";
 
@@ -46,6 +47,7 @@ export function CatalogSubjectBrowser({ subjects, role, search, grades, gradeAct
       {createGrade}
     </div>
     <nav className={styles.grades} aria-label="Chọn khối">{grades.map((option) => <div className={styles.gradeTab} data-active={grade === option.code} key={option.code}><a href={hrefFor(mode, undefined, option.code)} aria-current={grade === option.code ? "page" : undefined} onClick={(event) => navigate(event, hrefFor(mode, undefined, option.code))}>{option.name}</a>{gradeActions[option.code] && <GradeMenu name={option.name}>{gradeActions[option.code]}</GradeMenu>}</div>)}{createGrade}</nav>
+    {role === "STUDENT" && <FavoriteTeachersToolbar />}
     <div className={styles.workspace}>
       <aside className={styles.sidebar}><div className={styles.sidebarHeading}><h2>Môn học & kỳ thi</h2><span className={styles.count}>{visible.length} Mục</span>{addSubject[grade]}</div>
         <label className={styles.mobileSubject}>
