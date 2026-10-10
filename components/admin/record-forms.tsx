@@ -20,7 +20,7 @@ export function EditForm({ context, values, save, close, grades = [] }: Props & 
     return result;
   },initial);
   const kind = context.entity;
-  const set = (name: string,value: string) => setFields((f) => ({...f,[name]:value,...(name === "type" && value === "pdf" ? {provider:"drive"} : {})}));
+  const set = (name: string,value: string) => setFields((f) => ({...f,[name]:value,...(name === "type" ? {provider:value === "video" ? "youtube" : "drive"} : {})}));
   const input = (name: string,label: string,type = "text",required = true) => <label>{label}<input placeholder={name === "url" ? "https://…" : type === "number" ? "0" : `Nhập ${label.toLowerCase()}`} name={name} type={type} required={required} value={fields[name] ?? ""} onChange={(e) => set(name,e.target.value)} maxLength={name === "url" ? 2048 : 200} min={type === "number" ? 0 : undefined} max={name === "order_index" ? 2147483647 : name === "price" ? 9999999999.99 : undefined} step={name === "price" ? "0.01" : type === "number" ? "1" : undefined} /></label>;
   return <Dialog title={`${context.id ? "Sửa" : "Thêm"} ${entityNames[kind]}`} onClose={close} busy={pending}><form action={action} className="admin-form"><fieldset disabled={pending}>
     {input(["subjects","teachers","menus"].includes(kind) ? "name" : "title",kind === "menus" ? "Tên hạng mục" : kind === "teachers" ? "Tên giáo viên" : kind === "subjects" ? "Tên môn học" : "Tiêu đề")}

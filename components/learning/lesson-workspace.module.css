@@ -92,9 +92,11 @@
 .workspace :global(.record-controls > button:first-child:last-child) { background: #334155; border-color: #34445c; color: #8bbcff; }
 .workspace :global(.danger-link:hover) { background: #3c1c28 !important; border-color: #783347 !important; }
 .workspace :global(.form-error) { color: #fda4af; }
-.workspace :global(.admin-dialog) { --foreground: #f1f5f9; --muted: #94a3b8; --border: #475569; color: #f1f5f9; background: #1e293b; }
+.workspace :global(.admin-dialog) { --foreground: #f1f5f9; --muted: #94a3b8; --border: #475569; --silver: #475569; color: #f1f5f9; background: #1e293b; }
 .workspace :global(.admin-dialog > header) { background: #29364b; }
-.workspace :global(.admin-dialog input), .workspace :global(.admin-dialog textarea), .workspace :global(.admin-dialog select) { color: #f1f5f9; background: #0f172a; border-color: #475569; }
+.workspace :global(.admin-dialog input:not([type=radio]):not([type=checkbox]):not([type=hidden])), .workspace :global(.admin-dialog textarea), .workspace :global(.admin-dialog select) { color: var(--foreground); background: #0f172a; border-color: var(--border); }
+.workspace :global(.admin-dialog input::placeholder), .workspace :global(.admin-dialog textarea::placeholder) { color: var(--muted); opacity: 1; }
+.workspace :global(.admin-dialog input:focus), .workspace :global(.admin-dialog textarea:focus), .workspace :global(.admin-dialog select:focus) { border-color: #f59e0b; box-shadow: 0 0 0 3px #f59e0b26; }
 .workspace :global(.admin-dialog .button.secondary) { color: #c9d0dc; background: #29364b; border-color: #475569; }
 .workspace :global(.admin-dialog .dialog-close:hover) { background: #283952; }
 

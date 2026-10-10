@@ -199,7 +199,25 @@
 .progress:not([data-started=true]) progress { display: none; }
 .enter { width: auto; min-height: 30px; padding: 6px 10px; gap: 5px; border-radius: 11px; font-size: 13.2px; white-space: nowrap; font-weight: 600; }
 .enter :global(.icon) { width: 12px; height: 12px; }
-.card > :global(.admin-controls) { grid-column: 2 / -1; justify-content: flex-end; margin-top: 0; padding-top: 6px; }
+.home .card > :global(.admin-controls) { grid-column: 2 / -1; justify-content: flex-end; flex-wrap: nowrap; gap: 4px; margin: 0; padding: 0; border: 0; }
+.card > :global(.admin-controls .record-controls) { flex-wrap: nowrap; gap: 4px; }
+.home .card > :global(.admin-controls > button),
+.home .card > :global(.admin-controls > .record-controls > button),
+.home .card > :global(.admin-controls > .student-trigger > button) { width: 30px; min-width: 30px; height: 30px; min-height: 30px; padding: 5px; border-radius: 9px; }
+.card > :global(.admin-controls > button > .icon),
+.card > :global(.admin-controls > .record-controls > button > .icon),
+.card > :global(.admin-controls > .student-trigger > button > .icon) { width: 16px; height: 16px; }
+@media (min-width: 601px) {
+  .card:has(> :global(.admin-controls)) { grid-template-columns: 20px minmax(0, 1fr) auto auto 106px; }
+  .home .card > :global(.admin-controls) { grid-column: 3; grid-row: 1; }
+  .card:has(> :global(.admin-controls)) > .progress { grid-column: 4; grid-row: 1; }
+  .card:has(> :global(.admin-controls)) > .enter { grid-column: 5; grid-row: 1; }
+}
+@media (pointer: coarse) {
+  .home .card > :global(.admin-controls > button),
+  .home .card > :global(.admin-controls > .record-controls > button),
+  .home .card > :global(.admin-controls > .student-trigger > button) { width: 44px; min-width: 44px; height: 44px; min-height: 44px; }
+}
 .noTeachers { padding: 32px 12px; color: #7485a1; font-size: 14.3px; text-align: center; }
 @media (hover: hover) and (pointer: fine) {
   .card:hover, .card[data-featured=true]:hover { transform: none; box-shadow: none; border-color: #f2f4f7; background: #f8faff; }
