@@ -25,7 +25,13 @@ export function Navigation({ name, admin, onCatalogNavigate }: { name: string; a
     <Link href="/courses" className="brand" aria-label="KhoBai — Môn học"><span className="brand-icon"><Icon name="library" /></span><span>KhoBai.<span className="brand-caption">LỘ TRÌNH HỌC TẬP</span></span></Link>
     <nav aria-label="Điều hướng chính" className="primary-nav"><Link href="/courses?filter=all" prefetch={pathname === "/courses" ? false : undefined} onNavigate={(event) => { if (onCatalogNavigate) { event.preventDefault(); onCatalogNavigate("/courses?filter=all"); } }} aria-current={pathname.startsWith("/courses") && !mine ? "page" : undefined}><Icon name="grid" /> Tất cả khóa học</Link><Link href="/courses?filter=mine" prefetch={pathname === "/courses" ? false : undefined} onNavigate={(event) => { if (onCatalogNavigate) { event.preventDefault(); onCatalogNavigate("/courses?filter=mine"); } }} aria-current={pathname.startsWith("/courses") && mine ? "page" : undefined}><Icon name="book" /> Khóa học của tôi</Link><Link href="/menu" aria-current={pathname === "/menu" ? "page" : undefined}><Icon name="pricing" /> Bảng giá</Link></nav>
     <button ref={searchToggle} type="button" className="mobile-search-toggle" aria-label={searchOpen ? "Đóng tìm kiếm" : "Mở tìm kiếm"} aria-expanded={searchOpen} aria-controls="header-search" onClick={() => setSearchOpen((open) => !open)}><Icon name="search" /></button>
-    <form id="header-search" action="/courses" method="get" role="search" className="header-search" data-open={searchOpen} onKeyDown={(event) => { if (event.key === "Escape" && window.matchMedia("(max-width: 600px)").matches) { setSearchOpen(false); searchToggle.current?.focus(); } }}>
+    <form id="header-search" action="/courses" method="get" role="search" className="header-search" data-open={searchOpen} onSubmit={event => {
+      if (!onCatalogNavigate) return;
+      event.preventDefault();
+      const query = new URLSearchParams();
+      new FormData(event.currentTarget).forEach((value, key) => { if (typeof value === "string") query.set(key, value); });
+      onCatalogNavigate("/courses?" + query);
+    }} onKeyDown={(event) => { if (event.key === "Escape" && window.matchMedia("(max-width: 600px)").matches) { setSearchOpen(false); searchToggle.current?.focus(); } }}>
       <input type="hidden" name="filter" value={mine ? "mine" : "all"} />
       {pathname === "/courses" && params.get("grade") && <input type="hidden" name="grade" value={params.get("grade")!} />}
       <button type="submit" title="Tìm kiếm" aria-label="Tìm kiếm"><Icon name="search" /></button>

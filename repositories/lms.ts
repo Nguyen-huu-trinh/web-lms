@@ -87,9 +87,14 @@ async function readCourseContent(client: Client, course: Course, studentId: stri
   return { course, chapters, lessons, completed, ...progressSummary(lessons.map((l) => l.id), completed) };
 }
 
-export async function courseProgressSummaries(client: Client, courseIds: string[], studentId: string) {
-  const chapters = await byIds(courseIds, (ids,a,b) => client.from("chapters").select("id,course_id").in("course_id", ids).order("id").range(a,b));
-  const lessons = await byIds(chapters.map((chapter) => chapter.id), (ids,a,b) => client.from("lessons").select("id,chapter_id").in("chapter_id", ids).order("id").range(a,b));
+export async function courseProgressSummaries(client: Client, courseIds: string[], studentId: string, read: DataReader = uncached) {
+  // Callers supplying a persistent reader must provide freshly RLS-authorized
+  // course IDs. Cache structure only; completion is always read live below.
+  const { chapters, lessons } = await read("progress:outline:" + [...courseIds].sort().join(","), async () => {
+    const chapters = await byIds(courseIds, (ids,a,b) => client.from("chapters").select("id,course_id").in("course_id", ids).order("id").range(a,b));
+    const lessons = await byIds(chapters.map((chapter) => chapter.id), (ids,a,b) => client.from("lessons").select("id,chapter_id").in("chapter_id", ids).order("id").range(a,b));
+    return { chapters, lessons };
+  });
   const progress = await byIds(lessons.map((lesson) => lesson.id), (ids,a,b) => client.from("user_progress").select("lesson_id").eq("student_id", studentId).eq("is_completed", true).in("lesson_id", ids).order("id").range(a,b));
   const chapterCourses = new Map(chapters.map((chapter) => [chapter.id, chapter.course_id]));
   const courseLessons = new Map(courseIds.map((id) => [id, [] as string[]]));
@@ -151,13 +156,16 @@ export function createCourseReader(client: Client, profile: Profile, read: DataR
     async curriculum(teacherId: string) {
       if (!await getTeacher(teacherId)) return null;
       const rows = await this.courses(teacherId);
-      const chapters = await byIds(rows.map(course => course.id), (ids, a, b) => client.from("chapters").select("*").in("course_id", ids).order("order_index").order("id").range(a, b));
-      const lessons = await byIds(chapters.map(chapter => chapter.id), (ids, a, b) => client.from("lessons").select("*").in("chapter_id", ids).order("order_index").order("id").range(a, b));
+      // Only a fresh teacher grant and RLS course list authorize this cache hit.
+      // Include the current course IDs so added/removed courses change the key.
+      const { chapters, lessons, materials } = await read("teacher:curriculum:" + teacherId + ":" + rows.map(course => course.id).sort().join(","), async () => {
+        const chapters = await byIds(rows.map(course => course.id), (ids, a, b) => client.from("chapters").select("*").in("course_id", ids).order("order_index").order("id").range(a, b));
+        const lessons = await byIds(chapters.map(chapter => chapter.id), (ids, a, b) => client.from("lessons").select("*").in("chapter_id", ids).order("order_index").order("id").range(a, b));
+        const materials = await byIds(lessons.map(lesson => lesson.id), (ids, a, b) => client.from("materials").select("*").in("lesson_id", ids).order("order_index").order("id").range(a, b));
+        return { chapters, lessons, materials };
+      });
       const lessonIds = lessons.map(lesson => lesson.id);
-      const [materials, progress] = await Promise.all([
-        byIds(lessonIds, (ids, a, b) => client.from("materials").select("*").in("lesson_id", ids).order("order_index").order("id").range(a, b)),
-        byIds(lessonIds, (ids, a, b) => client.from("user_progress").select("lesson_id").eq("student_id", profile.id).eq("is_completed", true).in("lesson_id", ids).order("id").range(a, b)),
-      ]);
+      const progress = await byIds(lessonIds, (ids, a, b) => client.from("user_progress").select("lesson_id").eq("student_id", profile.id).eq("is_completed", true).in("lesson_id", ids).order("id").range(a, b));
       const completed = new Set(progress.map(row => row.lesson_id));
       const contents = rows.map(course => {
         const courseChapters = chapters.filter(chapter => chapter.course_id === course.id);

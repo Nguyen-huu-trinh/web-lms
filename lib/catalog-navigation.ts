@@ -12,3 +12,17 @@ export function localCatalogHref(currentHref: string, targetHref: string): strin
   const query = params.toString();
   return "/courses" + (query ? "?" + query : "");
 }
+
+// Native filter/subject changes can produce URLs that have never had an RSC
+// request. Return via the actual cached entry, then restore the desired view.
+export function catalogNavigationPlan(currentHref: string, targetHref: string, cachedEntry: string | null) {
+  const local = localCatalogHref(currentHref, targetHref);
+  if (local) return { href: local, route: null };
+  const restored = cachedEntry ? localCatalogHref(cachedEntry, targetHref) : null;
+  return restored ? { href: restored, route: cachedEntry } : { href: targetHref, route: targetHref };
+}
+
+export function catalogSearchScope(href: string) {
+  const url = new URL(href, "https://catalog.local");
+  return url.pathname === "/courses" && url.searchParams.has("q") ? url.searchParams.get("q")! : null;
+}

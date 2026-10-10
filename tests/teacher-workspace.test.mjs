@@ -6,16 +6,17 @@ import ts from "typescript";
 
 const workspaceUrl = new URL("../components/learning/teacher-workspace.tsx", import.meta.url).href;
 const linkUrl = new URL("../components/ui/navigation-link.tsx", import.meta.url).href;
-const state = { params: new URLSearchParams(), local: null };
+const state = { params: new URLSearchParams(), local: null, navigation: null };
 globalThis.__workspaceTest = state;
 const moduleSource = source => ({ url: "data:text/javascript," + encodeURIComponent(source), shortCircuit: true });
 registerHooks({
   resolve(specifier, context, next) {
     if ([workspaceUrl, linkUrl].includes(context.parentURL)) {
-      if (specifier === "react") return moduleSource('export const useMemo = fn => fn(); export const useState = () => [false, () => {}]; export const useContext = () => globalThis.__workspaceTest.local;');
+      if (specifier === "react") return moduleSource('export const useMemo = fn => fn(); export const useState = () => [false, () => {}]; export const useContext = context => context.catalog ? globalThis.__workspaceTest.navigation : globalThis.__workspaceTest.local;');
       if (specifier === "next/navigation") return moduleSource('export const useSearchParams = () => globalThis.__workspaceTest.params;');
       if (specifier === "next/link") return moduleSource('export default "next-link"; export const useLinkStatus = () => ({pending:false});');
       if (specifier.endsWith("local-learning-context")) return moduleSource('export const LocalLearningContext = {Provider:"provider"};');
+      if (specifier.endsWith("learning-navigation-context")) return moduleSource('export const LearningNavigationContext = {catalog:true};');
       if (specifier.endsWith("student-course-detail")) return moduleSource('export const StudentCourseDetail = "course-detail";');
       if (specifier.endsWith("lesson-workspace")) return moduleSource('export const LessonWorkspace = "lesson-workspace";');
       if (specifier.endsWith("/navigation-link")) return { url: linkUrl, shortCircuit: true };
@@ -88,4 +89,18 @@ test("admin navigation keeps preloaded editing controls and new progress replace
   assert.equal(lesson.props.materialTools, "add-material");
   assert.equal(lesson.props.materialActions["pdf-a"], "edit-pdf");
   assert.deepEqual(lesson.props.content.completed, ["lesson-a"]);
+});
+
+test("logo, breadcrumbs and grade links all use the shared catalog return path", t => {
+  const calls = [];
+  state.navigation = { navigateCatalog: href => calls.push(href) };
+  t.after(() => { state.navigation = null; });
+  for (const href of ["/courses", "/courses?filter=all", "/courses?grade=12&subject=math&filter=all"]) {
+    const link = NavigationLink({ href, prefetch: true });
+    let prevented = false;
+    link.props.onNavigate({ preventDefault: () => { prevented = true; } });
+    assert.equal(prevented, true);
+    assert.equal(link.props.prefetch, false);
+    assert.equal(calls.at(-1), href);
+  }
 });

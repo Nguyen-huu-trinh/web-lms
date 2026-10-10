@@ -114,6 +114,53 @@ function memoryReader() {
   };
 }
 
+test("returning to a teacher reuses curriculum metadata but refreshes progress and current authorization", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  assert.equal((await createCourseReader(client, profile, read).curriculum("teacher")).contents[0].percent, 100);
+  data.user_progress = [];
+  assert.equal((await createCourseReader(client, profile, read).curriculum("teacher")).contents[0].percent, 0);
+  for (const table of ["chapters", "lessons", "materials"]) assert.equal(calls.filter(name => name === table).length, 1);
+  assert.equal(calls.filter(name => name === "courses").length, 2);
+  assert.equal(calls.filter(name => name === "user_progress").length, 2);
+  data.student_subject_access = [];
+  assert.equal(await createCourseReader(client, profile, read).curriculum("teacher"), null);
+});
+
+test("curriculum cache changes when the live course list gains or loses a course", async () => {
+  const data = structuredClone(tables);
+  const { client } = fixture(data);
+  const read = memoryReader();
+  const profile = { id: "student", role: "STUDENT" };
+  await createCourseReader(client, profile, read).curriculum("teacher");
+  data.courses.push({ id: "new-course", teacher_id: "teacher", title: "New" });
+  data.chapters.push({ id: "new-chapter", course_id: "new-course" });
+  data.lessons.push({ id: "new-lesson", chapter_id: "new-chapter" });
+  data.materials.push({ id: "new-material", lesson_id: "new-lesson" });
+  const added = await createCourseReader(client, profile, read).curriculum("teacher");
+  assert.equal(added.contents.length, 2);
+  assert.ok(added.materials.some(material => material.id === "new-material"));
+  data.courses = data.courses.filter(course => course.id === "new-course");
+  const removed = await createCourseReader(client, profile, read).curriculum("teacher");
+  assert.equal(removed.contents.length, 1);
+  assert.deepEqual(removed.materials.map(material => material.id), ["new-material"]);
+});
+
+test("catalog progress reuses lesson counts while completion and course visibility remain current", async () => {
+  const data = structuredClone(tables);
+  const { client, calls } = fixture(data);
+  const read = memoryReader();
+  assert.equal((await courseProgressSummaries(client, ["course"], "student", read)).course.percent, 100);
+  data.user_progress = [];
+  assert.equal((await courseProgressSummaries(client, ["course"], "student", read)).course.percent, 0);
+  assert.equal(calls.filter(name => name === "chapters").length, 1);
+  assert.equal(calls.filter(name => name === "lessons").length, 1);
+  assert.equal(calls.filter(name => name === "user_progress").length, 2);
+  assert.deepEqual(await courseProgressSummaries(client, [], "student", read), {});
+});
+
 test("cache keys isolate project, user, session, role and resource", () => {
   const original = ["project", "user", "session", "STUDENT", "course:one"];
   const base = learningCacheKey(...original);

@@ -1,5 +1,7 @@
 "use client";
 
+import { Icon } from "@/components/ui/icon";
+
 export function NextLessonButton({ lessonId }: { lessonId: string }) {
   function scrollToLesson() {
     const lesson = document.getElementById(`lesson-card-${lessonId}`);
@@ -13,5 +15,5 @@ export function NextLessonButton({ lessonId }: { lessonId: string }) {
     });
   }
 
-  return <button type="button" className="next-lesson-button" onClick={scrollToLesson} aria-controls={`lesson-card-${lessonId}`}>Bài học tiếp theo</button>;
+  return <button type="button" className="next-lesson-button" onClick={scrollToLesson} aria-controls={`lesson-card-${lessonId}`}>Bài học tiếp theo<Icon name="arrow" /></button>;
 }

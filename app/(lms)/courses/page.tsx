@@ -39,15 +39,13 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
   const teachersFor = (subject: typeof subjects[number]) => data.teachers.filter((teacher) => teacher.subject_id === subject.id && (matchesCatalogSearch(subject.name, search) || matchesCatalogSearch(teacher.name, search)));
   const access = admin && selected ? await catalogAccessCounts(client, selected.id, teachersFor(selected).map((teacher) => teacher.id)) : null;
   const courses = await allRows((a,b) => client.from("courses").select("id,teacher_id").order("id").range(a,b));
-  const progress = profile.role === "STUDENT" ? await courseProgressSummaries(client, courses.map((c) => c.id), profile.id) : {};
+  const progress = profile.role === "STUDENT" ? await courseProgressSummaries(client, courses.map((c) => c.id), profile.id, read) : {};
   const stats = new Map<string, {total: number; count: number}>();
   for (const course of courses) {
     const previous = stats.get(course.teacher_id) ?? {total:0,count:0};
     const next = progress[course.id];
     stats.set(course.teacher_id, { total: previous.total + (next?.total ?? 0), count: previous.count + (next?.count ?? 0) });
   }
-  // Mutations and explicit refreshes replace the local snapshot; filter toggles do not.
-  const viewVersion = crypto.randomUUID();
   let favoriteIds: string[] = [];
   let favoritesLoadFailed = false;
   if (!admin) {
@@ -60,7 +58,7 @@ export default async function Courses({ searchParams }: { searchParams: Promise<
     {!grades.length && <EmptyState title="Chưa có khối học." description={admin ? "Tạo khối trước, sau đó thêm môn học vào khối." : "Chưa có khối học được tạo."} />}
     {query.password === "changed" && <p className="notice" role="status">Đổi mật khẩu thành công.</p>}
     <TeacherFavoritesProvider key={profile.id} initialIds={favoriteIds} enabled={!admin} loadFailed={favoritesLoadFailed}>
-    <CatalogSubjectBrowser key={viewVersion} role={profile.role} search={search} grades={grades}
+    <CatalogSubjectBrowser key={`${profile.id}:${sessionId}`} role={profile.role} search={search} grades={grades} snapshotHref={"/courses" + (Object.keys(query).length ? "?" + new URLSearchParams(query).toString() : "")}
       createGrade={admin ? <CreateGrade /> : undefined}
       addSubject={admin ? Object.fromEntries(grades.map((item) => [item.code, <RecordControls key={item.code} iconOnly grades={grades} context={{entity:"subjects",gradeCode:item.code}} values={{grade:item.code}} />])) : {}}
       gradeActions={admin ? Object.fromEntries(grades.map((item) => { const items = data.subjects.filter((subject) => subject.grade === item.code); return [item.code, <div key={item.code}><GradeControls code={item.code} name={item.name} orderIndex={item.order_index} /><AddStudentForm iconOnly disabled={!items.length} gradeName={item.name} subjects={items} initialSubjectIds={items.map((subject) => subject.id)} /></div>]; })) : {}}

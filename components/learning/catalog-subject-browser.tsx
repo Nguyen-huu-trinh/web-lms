@@ -1,5 +1,6 @@
 "use client";
-import { useState, type ReactNode, type MouseEvent } from "react";
+import { useContext, useEffect, useState, type ReactNode, type MouseEvent } from "react";
+import { LearningNavigationContext } from "./learning-navigation-context";
 import { useSearchParams } from "next/navigation";
 import { isMyCoursesFilter } from "@/lib/catalog-search";
 import { selectedSubjectGrade, type SubjectGrade, type GradeOption } from "@/lib/admin-validation";
@@ -10,7 +11,9 @@ import { EmptyState } from "./shared";
 import styles from "./course-home.module.css";
 
 type SubjectPanel = { id: string; name: string; grade: SubjectGrade; mine: boolean; teacherCount: number; panel: ReactNode; minePanel: ReactNode };
-export function CatalogSubjectBrowser({ subjects, role, search, grades, gradeActions = {}, addSubject = {}, createGrade }: { gradeActions?: Record<string, ReactNode>; addSubject?: Record<string, ReactNode>; createGrade?: ReactNode; grades: GradeOption[]; subjects: SubjectPanel[]; role: string; search: string }) {
+export function CatalogSubjectBrowser({ subjects, role, search, grades, snapshotHref, gradeActions = {}, addSubject = {}, createGrade }: { snapshotHref: string; gradeActions?: Record<string, ReactNode>; addSubject?: Record<string, ReactNode>; createGrade?: ReactNode; grades: GradeOption[]; subjects: SubjectPanel[]; role: string; search: string }) {
+  const registerCatalogEntry = useContext(LearningNavigationContext)?.registerCatalogEntry;
+  useEffect(() => { registerCatalogEntry?.(snapshotHref); }, [registerCatalogEntry, snapshotHref]);
   const params = useSearchParams();
   const mine = isMyCoursesFilter(role, params.get("filter") ?? undefined);
   const grade = selectedSubjectGrade(params.get("grade"), grades);
