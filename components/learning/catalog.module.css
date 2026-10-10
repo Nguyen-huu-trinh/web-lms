@@ -436,12 +436,12 @@
 }
 
 :global(body):has(.singleCourse) { background: #f7f9fc; }
-:global(.app-content):has(.singleCourse) { max-width: none; padding: 0 40px 48px; }
-.singleCourse .fullCourseContent { width: 100%; min-width: 0; padding: 24px; }
+:global(.app-content):has(.singleCourse) { max-width: none; padding: 0 24px 48px; }
+.singleCourse .fullCourseContent { width: 100%; min-width: 0; padding: 20px; }
 .courseAdmin { display: flex; justify-content: flex-end; margin-bottom: 8px; }
 .courseAdmin :global(.record-controls) { margin: 0; }
 @media(max-width:760px) {
-  :global(.app-content):has(.singleCourse) { padding: 0 16px 28px; }
+  :global(.app-content):has(.singleCourse) { padding: 0 12px 28px; }
   .singleCourse .fullCourseContent { padding: 16px; }
 }
 
@@ -464,3 +464,34 @@
   .catalog :global(.chapter-header-actions) { position: static; justify-content: flex-end; padding: 8px 12px 0; }
   .catalog :global(.admin-chapter-card > .chapter > summary) { padding-right: 38px; }
 }
+
+/* Slightly tighter course content while retaining readable lesson titles. */
+.catalog.singleCourse :global(.section-heading .eyebrow) { font-size: 13px; }
+.catalog.singleCourse :global(.section-heading h2) { font-size: clamp(22px, 1.8vw, 25px); }
+.catalog.singleCourse :global(.course-progress-featured) { padding: 14px; margin-bottom: 14px; }
+.catalog.singleCourse :global(.progress-heading) { gap: 9px; }
+.catalog.singleCourse :global(.progress-symbol) { width: 34px; height: 34px; border-radius: 10px; }
+.catalog.singleCourse :global(.progress-symbol .icon) { width: 18px; height: 18px; }
+.catalog.singleCourse :global(.progress-heading h2) { font-size: 15px; }
+.catalog.singleCourse :global(.progress-heading p),
+.catalog.singleCourse :global(.progress-stats) { font-size: 13px; }
+.catalog.singleCourse :global(.progress-percent) { font-size: 27px; }
+.catalog.singleCourse :global(.progress-percent > span) { font-size: 13px; }
+.catalog.singleCourse :global(.course-progress-featured progress) { height: 7px; margin: 12px 0 7px; }
+.catalog.singleCourse :global(.next-lesson-button) { min-height: 36px; padding: 7px 12px; margin-top: 10px; font-size: 14px; }
+.catalog.singleCourse :global(.student-curriculum .chapter) { margin: 10px 0; border-radius: 14px; }
+.catalog.singleCourse :global(.student-curriculum .chapter > summary) { padding: 12px 14px; gap: 10px; }
+.catalog.singleCourse :global(.student-curriculum .chapter-number) { width: 32px; height: 32px; font-size: 13px; border-radius: 9px; }
+.catalog.singleCourse :global(.student-curriculum summary strong) { font-size: 16px; }
+.catalog.singleCourse :global(.student-curriculum summary small) { font-size: 13px; margin-top: 3px; }
+.catalog.singleCourse :global(.student-curriculum .chapter > ul) { padding: 6px; }
+.catalog.singleCourse :global(.student-curriculum .lesson-link) { min-height: 44px; padding: 7px 9px; gap: 9px; }
+.catalog.singleCourse :global(.student-curriculum .lesson-title) { font-size: 15px; }
+.catalog.singleCourse :global(.student-curriculum .lesson-check) { width: 28px; height: 28px; border-radius: 8px; }
+.catalog.singleCourse :global(.student-curriculum .lesson-check .icon) { width: 15px; height: 15px; }
+.catalog.singleCourse :global(.student-curriculum .next-lesson-label) { padding: 3px 7px; font-size: 11px; }
+@media (max-width: 760px) {
+  .catalog.singleCourse :global(.next-lesson-button) { min-height: 44px; }
+}
+
+.courseContainer { width: 100%; max-width: 1280px; min-width: 0; margin-inline: auto; }

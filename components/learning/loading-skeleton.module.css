@@ -14,3 +14,14 @@
 .material { border: 1px solid #334155; border-radius: 15px; padding: 20px; }
 @media(max-width:600px) { .desktop { display: none; } .mobile { display: grid; gap: 8px; margin: 12px 0; padding: 12px; background: white; border: 1px solid #dfe6f1; border-radius: 16px; } .sidebar { gap: 10px; } .grades { margin-bottom: 16px; } .progress,.chapter { padding: 16px; } }
 @media(prefers-reduced-motion:reduce) { .bar { animation: none; } }
+
+.catalogSubject { margin-top: 6px; }
+.catalogProgress { margin-top: 7px; }
+@media(max-width:600px) {
+  .catalogGrades { display: none; }
+  .catalogButton .bar { height: 44px !important; }
+  .catalogProgress .bar { height: 6px !important; }
+}
+
+.compactContent { gap: 14px; }
+.compactContent .progress, .compactContent .chapter { padding: 16px; gap: 14px; border-radius: 14px; }

@@ -1,6 +1,1 @@
-import home from "@/components/learning/course-home.module.css";
-import s from "@/components/learning/loading-skeleton.module.css";
-import { LoadingFrame, Skeleton, GradeSkeleton } from "@/components/learning/loading-skeleton";
-export default function LoadingCourses() {
-  return <LoadingFrame className={home.home} label="Đang tải khóa học…"><div className={s.desktop}><GradeSkeleton /></div><div className={s.mobile}><Skeleton width="90px" height={12} /><Skeleton height={44} /></div><div className={home.workspace}><aside className={`${home.sidebar} ${s.sidebar}`}><Skeleton width="65%" /><div className={s.desktop}>{[0,1,2,3,4,5].map(i => <div className="py-3" key={i}><Skeleton height={36} /></div>)}</div><div className={s.mobile}><Skeleton height={44} /></div></aside><section><div className={home.heading}><Skeleton width="55%" height={24} /></div><div className={home.cards}>{[0,1,2,3,4,5].map(i => <div className={home.card} key={i}><div className={s.row}><Skeleton width="48px" height={48} /><div className={s.copy}><Skeleton width="80%" height={22} /><Skeleton width="60%" /></div></div><div className={home.progress}><Skeleton height={10} /></div><Skeleton height={44} /></div>)}</div></section></div></LoadingFrame>;
-}
+export { CatalogSkeleton as default } from "@/components/learning/catalog-skeleton";

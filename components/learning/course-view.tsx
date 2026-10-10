@@ -13,14 +13,16 @@ export function CourseView({ subject, teacher, course, grades, content, admin = 
   const back = "/courses?" + new URLSearchParams({grade: subject.grade, subject: subject.id, filter:"all"});
   return <main className={`${styles.catalog} ${styles.coursePage} ${styles.singleCourse}`}>
     <nav className={navigation.grades} aria-label="Chọn khối">{grades.map((grade) => <Link key={grade.code} href={"/courses?" + new URLSearchParams({grade:grade.code,filter:"all"})} aria-current={grade.code === subject.grade ? "page" : undefined}>{grade.name}</Link>)}</nav>
+    <div className={styles.courseContainer}>
     <nav className={navigation.breadcrumb} aria-label="Đường dẫn">
       <Link href={back}><Icon name="arrow" />Quay lại DS môn</Link><Icon name="chevron" />
       <Link href={`/courses/teachers/${teacher.id}`}>{teacher.name}</Link><Icon name="chevron" />
       <strong aria-current="page">{course.title}</strong>
     </nav>
     <section className={`detail-panel ${styles.fullCourseContent}`} aria-label="Nội dung khóa học">
-      <Suspense key={course.id} fallback={<div role="status" aria-label="Đang tải nội dung khóa học" aria-busy="true"><span className="sr-only">Đang tải nội dung khóa học…</span><CourseContentSkeleton /></div>}><InitialCourseDetail content={content} admin={admin} /></Suspense>
+      <Suspense key={course.id} fallback={<div role="status" aria-label="Đang tải nội dung khóa học" aria-busy="true"><span className="sr-only">Đang tải nội dung khóa học…</span><CourseContentSkeleton compact /></div>}><InitialCourseDetail content={content} admin={admin} /></Suspense>
     </section>
+    </div>
   </main>;
 }
 

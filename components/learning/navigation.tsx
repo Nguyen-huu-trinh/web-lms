@@ -5,8 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { logout } from "@/app/login/actions";
 import { Icon } from "@/components/ui/icon";
 import { SubmitButton } from "@/components/ui/submit-button";
+import styles from "./navigation.module.css";
 import { isMyCoursesFilter } from "@/lib/catalog-search";
-export function Navigation({ name, admin }: { name: string; admin: boolean }) {
+export function Navigation({ name, admin, onCatalogNavigate }: { name: string; admin: boolean; onCatalogNavigate?: (href: string) => void }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const mine = isMyCoursesFilter(admin ? "ADMIN" : "STUDENT", params.get("filter") ?? undefined);
@@ -20,9 +21,9 @@ export function Navigation({ name, admin }: { name: string; admin: boolean }) {
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, []);
-  return <header className="site-header"><div className="site-nav">
+  return <header className={`site-header ${styles.header}`}><div className="site-nav">
     <Link href="/courses" className="brand" aria-label="KhoBai — Môn học"><span className="brand-icon"><Icon name="library" /></span><span>KhoBai.<span className="brand-caption">LỘ TRÌNH HỌC TẬP</span></span></Link>
-    <nav aria-label="Điều hướng chính" className="primary-nav"><Link href="/courses?filter=all" aria-current={pathname.startsWith("/courses") && !mine ? "page" : undefined}><Icon name="grid" /> Tất cả khóa học</Link><Link href="/courses?filter=mine" aria-current={pathname.startsWith("/courses") && mine ? "page" : undefined}><Icon name="book" /> Khóa học của tôi</Link><Link href="/menu" aria-current={pathname === "/menu" ? "page" : undefined}><Icon name="pricing" /> Bảng giá</Link></nav>
+    <nav aria-label="Điều hướng chính" className="primary-nav"><Link href="/courses?filter=all" onNavigate={(event) => { if (onCatalogNavigate) { event.preventDefault(); onCatalogNavigate("/courses?filter=all"); } }} aria-current={pathname.startsWith("/courses") && !mine ? "page" : undefined}><Icon name="grid" /> Tất cả khóa học</Link><Link href="/courses?filter=mine" onNavigate={(event) => { if (onCatalogNavigate) { event.preventDefault(); onCatalogNavigate("/courses?filter=mine"); } }} aria-current={pathname.startsWith("/courses") && mine ? "page" : undefined}><Icon name="book" /> Khóa học của tôi</Link><Link href="/menu" aria-current={pathname === "/menu" ? "page" : undefined}><Icon name="pricing" /> Bảng giá</Link></nav>
     <button ref={searchToggle} type="button" className="mobile-search-toggle" aria-label={searchOpen ? "Đóng tìm kiếm" : "Mở tìm kiếm"} aria-expanded={searchOpen} aria-controls="header-search" onClick={() => setSearchOpen((open) => !open)}><Icon name="search" /></button>
     <form id="header-search" action="/courses" method="get" role="search" className="header-search" data-open={searchOpen} onKeyDown={(event) => { if (event.key === "Escape" && window.matchMedia("(max-width: 600px)").matches) { setSearchOpen(false); searchToggle.current?.focus(); } }}>
       <input type="hidden" name="filter" value={mine ? "mine" : "all"} />

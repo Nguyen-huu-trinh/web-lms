@@ -35,6 +35,7 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
   const back = "/courses?" + new URLSearchParams({grade: subject.grade, subject: subject.id, filter: "all"});
   return <main className={styles.page}>
     <nav className={styles.grades} aria-label="Chọn khối">{grades.map((grade) => <Link key={grade.code} href={"/courses?" + new URLSearchParams({grade:grade.code,filter:"all"})} aria-current={grade.code === subject.grade ? "page" : undefined}>{grade.name}</Link>)}</nav>
+    <div className={styles.content}>
     <nav className={styles.breadcrumb} aria-label="Đường dẫn"><Link href={back}><Icon name="arrow" />Quay lại DS môn</Link><Icon name="chevron" /><strong>{teacher.name}</strong></nav>
     <div className={styles.layout}>
       <aside className={styles.profile}>
@@ -55,6 +56,7 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
           </li>;
         })}</ul>
       </section>
+    </div>
     </div>
   </main>;
 }

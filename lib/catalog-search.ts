@@ -7,5 +7,5 @@ export function matchesCatalogSearch(name: string, query: string) {
 }
 
 export function isMyCoursesFilter(role: string, filter?: string) {
-  return filter === "mine" && (role === "STUDENT" || role === "ADMIN");
+  return (filter === undefined || filter === "mine") && (role === "STUDENT" || role === "ADMIN");
 }

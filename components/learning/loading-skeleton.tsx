@@ -7,6 +7,6 @@ export function LoadingFrame({ children, className = "", label = "Đang tải n�
   return <main className={className} role="status" aria-busy="true" aria-label={label}><span className="sr-only">{label}</span><div aria-hidden="true" className={styles.contents}>{children}</div></main>;
 }
 export function GradeSkeleton() { return <div className={styles.grades}>{[0,1,2,3].map(i => <Skeleton key={i} width="120px" height={44} />)}</div>; }
-export function CourseContentSkeleton() {
-  return <div className={styles.content} aria-hidden="true"><Skeleton width="160px" /><Skeleton width="45%" height={30} /><div className={styles.progress}><Skeleton width="45%" height={22} /><Skeleton height={8} /><Skeleton width="30%" /></div>{[0,1,2].map(i => <div className={styles.chapter} key={i}><Skeleton width="55%" height={24} /><Skeleton width="80%" /><Skeleton width="65%" /></div>)}</div>;
+export function CourseContentSkeleton({ compact = false }: { compact?: boolean } = {}) {
+  return <div className={`${styles.content} ${compact ? styles.compactContent : ""}`} aria-hidden="true"><Skeleton width="160px" /><Skeleton width="45%" height={compact ? 26 : 30} /><div className={styles.progress}><Skeleton width="45%" height={compact ? 20 : 22} /><Skeleton height={8} /><Skeleton width="30%" /></div>{[0,1,2].map(i => <div className={styles.chapter} key={i}><Skeleton width="55%" height={compact ? 22 : 24} /><Skeleton width="80%" /><Skeleton width="65%" /></div>)}</div>;
 }
