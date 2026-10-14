@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Maximize, Minimize } from "lucide-react";
 import styles from "./fullscreen-player.module.css";
 
-export function FullscreenPlayer({ children }: { children: ReactNode }) {
+export function FullscreenPlayer({ children, showFullscreenControl = true }: { children: ReactNode; showFullscreenControl?: boolean }) {
   const player = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const [nativeFullscreen, setNativeFullscreen] = useState(false);
@@ -60,12 +60,12 @@ export function FullscreenPlayer({ children }: { children: ReactNode }) {
   }
 
   return <div ref={player} className={styles.player} data-expanded={expanded}>
-    <div className={styles.toolbar}>
+    {showFullscreenControl && <div className={styles.toolbar}>
       {error && <span role="alert" className={styles.error}>{error}</span>}
       <button ref={button} type="button" className={styles.toggle} onClick={toggleFullscreen} disabled={pending} aria-pressed={fullscreen} aria-label={fullscreen ? "Thu nhỏ video" : "Phóng to toàn màn hình"} title={fullscreen ? "Thu nhỏ video (Esc)" : "Phóng to toàn màn hình"}>
         {fullscreen ? <Minimize size={22} aria-hidden="true" /> : <Maximize size={22} aria-hidden="true" />}
       </button>
-    </div>
+    </div>}
     {children}
   </div>;
 }
