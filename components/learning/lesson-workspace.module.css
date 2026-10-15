@@ -57,8 +57,8 @@
 @media (max-width: 900px) { .workspace { height: auto; min-height: 100dvh; } .topbar { flex-wrap: wrap; padding: 10px 12px; } .topActions { width: 100%; justify-content: flex-end; } .position { margin-right: auto; } .body { display: flex; flex-direction: column; } .workspace :global(.video-frame) { flex: none; aspect-ratio: 16/9; min-height: 0; } .workspace :global(.video-frame iframe) { min-height: 0; } .workspace :global(.lesson-panel) { border-left: 0; border-top: 1px solid #334155; } .workspace :global(.lesson-panel [role=tabpanel]) { max-height: 65dvh; } }
 
 .workspace :global(.video-frame) { position: relative; }
-/* Transparent pointer shield over the YouTube title and channel links. */
-.playerTitleShield { position: absolute; z-index: 2; top: 0; left: 0; width: min(320px, 45%); height: 90px; max-height: 30%; background: transparent; pointer-events: auto; }
+/* Cover the YouTube header while leaving room for volume, captions and settings. */
+.playerTitleShield { position: absolute; z-index: 2; top: 0; left: 0; right: 170px; height: 90px; max-height: 30%; background: transparent; pointer-events: auto; }
 
 /* Pointer shield for the bottom action row; native seek bar remains above it. */
 .playerBottomShield { position: absolute; z-index: 2; inset: auto 0 0; height: 48px; background: transparent; pointer-events: auto; }
